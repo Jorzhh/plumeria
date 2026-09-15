@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor 3D Interactivo - Práctica</title>
+    <link rel="stylesheet" href="visor3d-style.css">
+    <!-- Importamos Three.js, OrbitControls y GLTFLoader desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+
+    <!-- Contenedor del Visor 3D -->
+    <div id="canvas-container"></div>
+    
+    <div id="info-panel">
+        <h2>Visor 3D Interactivo</h2>
+        <p>Haz clic en cualquier objeto de la escena para seleccionarlo.</p>
+    </div>
+
+    <!-- Sección de Preguntas Teóricas Requeridas por el Profesor -->
+    <section id="questionnaire">
+        <h2>Cuestionario Teórico del Proyecto</h2>
+        
+        <div class="question">
+            <h3>1. ¿Qué función cumple la escena en Three.js?</h3>
+            <p>Es el contenedor principal o el "escenario" virtual donde se colocan todos los elementos 3D (geometrías, luces, cámaras y modelos) para que puedan ser renderizados en pantalla.</p>
+        </div>
+
+        <div class="question">
+            <h3>2. ¿Para qué sirve la cámara?</h3>
+            <p>Define el punto de vista del usuario. Simula el ojo humano o una lente cinematográfica, determinando qué parte del mundo 3D es visible y cómo se proyecta en la pantalla 2D.</p>
+        </div>
+
+        <div class="question">
+            <h3>3. ¿Qué hace el renderer?</h3>
+            <p>Toma la escena y la cámara como entradas y calcula los gráficos matemáticos fotograma a fotograma para dibujarlos dentro del elemento HTML Canvas usando WebGL.</p>
+        </div>
+
+        <div class="question">
+            <h3>4. ¿Qué permite hacer OrbitControls?</h3>
+            <p>Permite al usuario interactuar libremente con el entorno mediante el mouse o la pantalla táctil para rotar alrededor de un objetivo, hacer zoom y desplazar la vista (pan).</p>
+        </div>
+
+        <div class="question">
+            <h3>5. ¿Qué es el raycasting y para qué lo usaste?</h3>
+            <p>Es una técnica para calcular intersecciones entre un rayo lanzado desde la posición del mouse en la pantalla y los objetos tridimensionales de la escena. Lo usé para detectar qué objeto clics el usuario y cambiar su color o mostrar su información.</p>
+        </div>
+
+        <div class="question">
+            <h3>6. ¿Qué dificultades tuviste al cargar modelos .glb o .gltf?</h3>
+            <p>Principalmente problemas con las rutas relativas de los archivos o texturas externas asociadas al modelo, así como asegurar que el cargador asíncrono (`GLTFLoader`) maneje correctamente la escala y posición inicial.</p>
+        </div>
+
+        <div class="question">
+            <h3>7. ¿Cómo podrías usar este visor 3D en un proyecto de simulación, videojuegos, bioinformática o modelado 3D?</h3>
+            <p>Permitiría visualizar estructuras moleculares en bioinformática, renderizar componentes interactivos en simulaciones industriales, o armar prototipos visuales rápidos para videojuegos web sin instalar plugins pesados.</p>
+        </div>
+    </section>
+
+    <!-- Script principal de lógica 3D -->
+    <script src="visor3d-main.js"></script>
+</body>
+</html>
