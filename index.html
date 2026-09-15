@@ -2,16 +2,172 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>PlumeriApp 3D</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js - Cubo Verde Chillón - Plumeria</title>
     <style>
-        body { margin: 0; }
-        canvas { display: block; } /* Esto hace que el 3D ocupe toda la pantalla */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #1a1a2e;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .info {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 8px;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        .subtitulo {
+            margin-top: 6px;
+            font-size: 14px;
+            color: #00ff33;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <!-- Importamos Three.js desde internet -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Conectamos tu archivo de programación -->
-    <script src="main.js"></script>
+
+    <div class="info">
+        🟩 Cubo 3D - Three.js - Plumeria
+        <div class="subtitulo">
+            OROZCO ESPINOSA HUMBERTO JOSUE<br>
+            ALVAREZ LOMELI IRLANDA GORETI
+        </div>
+    </div>
+
+    <!-- Importar Three.js desde CDN -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        // 1. IMPORTAR THREE.JS
+        import * as THREE from 'three';
+
+        // 2. CREAR ESCENA, CÁMARA Y RENDERIZADOR
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
+
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // 3. CREAR UN CUBO
+        const geometry = new THREE.BoxGeometry(2.6, 2.6, 2.6);
+
+        const material = new THREE.MeshStandardMaterial({ 
+            color: 0x00ff33,
+            roughness: 0.2,
+            metalness: 0.1,
+            emissive: new THREE.Color(0x00ff00)
+        });
+
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // 4. AÑADIR BORDES AL CUBO
+        const edges = new THREE.EdgesGeometry(geometry);
+        const lineMaterial = new THREE.LineBasicMaterial({
+            color: 0xffffff
+        });
+
+        const wireframe = new THREE.LineSegments(
+            edges,
+            lineMaterial
+        );
+
+        cube.add(wireframe);
+
+        // 5. AÑADIR LUZ
+        const ambientLight = new THREE.AmbientLight(0x406040);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(
+            0xffffff,
+            1
+        );
+
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        const backLight = new THREE.DirectionalLight(
+            0x44ff88,
+            0.5
+        );
+
+        backLight.position.set(-3, -2, -4);
+        scene.add(backLight);
+
+        // 6. AÑADIR UNA REJILLA
+        const gridHelper = new THREE.GridHelper(
+            10,
+            20,
+            0x44ff44,
+            0x224422
+        );
+
+        gridHelper.position.y = -2.0;
+        scene.add(gridHelper);
+
+        // 7. ANIMACIÓN
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotar el cubo
+            cube.rotation.x += 0.05;
+            cube.rotation.y += 0.015;
+
+            // Efecto de bote leve
+            cube.position.y =
+                Math.sin(Date.now() * 0.002) * 0.2;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // 8. MANEJAR REDIMENSIÓN DE VENTANA
+        window.addEventListener('resize', () => {
+            camera.aspect =
+                window.innerWidth / window.innerHeight;
+
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(
+                window.innerWidth,
+                window.innerHeight
+            );
+        });
+
+        console.log('✅ Three.js funcionando correctamente');
+    </script>
+
 </body>
 </html>
