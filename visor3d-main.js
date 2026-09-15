@@ -1,91 +1,112 @@
-// 1 & 3. Escena y Renderer
+// 1. Crear una escena básica con Three.js
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0f172a);
+scene.background = new THREE.Color(0x1e293b);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
-document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-// 2. Cámara en perspectiva
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / (window.innerHeight * 0.8), 0.1, 1000);
+// 2. Agregar una cámara en perspectiva
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 5, 10);
 
-// 7. OrbitControls
+// 3. Configurar el renderer para mostrar la escena en pantalla
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+// 7. Usar OrbitControls para rotar, acercar y alejar la cámara
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// 6. Iluminación
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+// 6. Agregar iluminación a la escena
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
 scene.add(ambientLight);
 
-const pointLight = new THREE.PointLight(0xffffff, 1.2);
+const pointLight = new THREE.PointLight(0xffffff, 1.5);
 pointLight.position.set(5, 8, 5);
 scene.add(pointLight);
 
-// 4 & 5. Geometrías básicas (Cubo, Esfera, Plano) y materiales diferentes
-const objectsGroup = new THREE.Group();
+// Grupo para almacenar los objetos interactivos
+const interactables = [];
 
+// 4 & 5. Agregar al menos tres geometrías básicas con materiales diferentes
 // Cubo
 const cubeGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-const cubeMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.3 });
+const cubeMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2 });
 const cube = new THREE.Mesh(cubeGeo, cubeMat);
 cube.position.set(-3, 1, 0);
 cube.userData = { name: "Cubo 3D" };
-objectsGroup.add(cube);
+scene.add(cube);
+interactables.push(cube);
 
 // Esfera
 const sphereGeo = new THREE.SphereGeometry(1, 32, 32);
-const sphereMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e, metalness: 0.2 });
+const sphereMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e, metalness: 0.3 });
 const sphere = new THREE.Mesh(sphereGeo, sphereMat);
 sphere.position.set(0, 1, 0);
 sphere.userData = { name: "Esfera 3D" };
-objectsGroup.add(sphere);
+scene.add(sphere);
+interactables.push(sphere);
 
-// Plano (suelo)
+// Plano
 const planeGeo = new THREE.PlaneGeometry(12, 12);
-const planeMat = new THREE.MeshStandardMaterial({ color: 0x334155, side: THREE.DoubleSide });
+const planeMat = new THREE.MeshStandardMaterial({ color: 0x475569, side: THREE.DoubleSide });
 const plane = new THREE.Mesh(planeGeo, planeMat);
 plane.rotation.x = Math.PI / 2;
-plane.userData = { name: "Plano de Suelo" };
-objectsGroup.add(plane);
+plane.userData = { name: "Plano del Suelo" };
+scene.add(plane);
+interactables.push(plane);
 
-scene.add(objectsGroup);
-
-// 9. Carga de un modelo 3D (.glb o .gltf) - Opcional
+// 9. Cargar al menos un modelo 3D en formato .glb o .gltf
 const loader = new THREE.GLTFLoader();
-// loader.load('models/tu_modelo.glb', (gltf) => {
-//     gltf.scene.position.set(3, 0, 0);
-//     scene.add(gltf.scene);
-// }, undefined, (error) => { console.log('Modelo opcional no cargado', error); });
+loader.load(
+    'models/tu_modelo.glb', // Asegúrate de poner un archivo real en la carpeta models/ si lo usas
+    (gltf) => {
+        const model = gltf.scene;
+        model.position.set(3, 0, 0);
+        model.scale.set(1.5, 1.5, 1.5);
+        model.userData = { name: "Modelo GLTF Externo" };
+        scene.add(model);
+        interactables.push(model);
+    },
+    undefined,
+    (error) => {
+        console.log("Nota: No se encontró modelo externo en models/, pero el visor funciona con las geometrías básicas.");
+    }
+);
 
-// 10 & 11. Raycasting para seleccionar objetos con el mouse
+// 10 & 11. Implementar raycasting para seleccionar un objeto y realizar acción visible
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 window.addEventListener('click', (event) => {
-    const rect = renderer.domElement.getBoundingClientRect();
-    if (event.clientY < rect.bottom) {
-        mouse.x = ((event.clientX - rect.left) / renderer.domElement.clientWidth) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / renderer.domElement.clientHeight) * 2 + 1;
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(objectsGroup.children);
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(interactables, true);
 
-        if (intersects.length > 0) {
-            const selectedObject = intersects[0].object;
-            selectedObject.material.color.setHex(Math.random() * 0xffffff);
-            document.getElementById('info-panel').innerHTML = `
-                <h2>Objeto Seleccionado:</h2>
-                <p style="color: #38bdf8; font-weight: bold;">${selectedObject.userData.name || 'Objeto sin nombre'}</p>
-            `;
+    if (intersects.length > 0) {
+        let selectedObject = intersects[0].object;
+        
+        // Si el objeto pertenece a un modelo cargado, subimos al objeto raíz si es necesario
+        while (selectedObject.parent && selectedObject.parent !== scene && !interactables.includes(selectedObject)) {
+            selectedObject = selectedObject.parent;
         }
+
+        // Acción visible: Cambiar color de material si lo tiene e imprimir en consola
+        if (selectedObject.material) {
+            selectedObject.material.color.setHex(Math.random() * 0xffffff);
+        }
+        console.p = console.log;
+        console.log(`Objeto seleccionado: ${selectedObject.userData.name || 'Desconocido'}`);
+        
+        document.getElementById('info').innerText = `Seleccionado: ${selectedObject.userData.name || 'Objeto 3D'}`;
     }
 });
 
-// 8. Animación con requestAnimationFrame
+// 8. Crear una animación usando requestAnimationFrame
 function animate() {
     requestAnimationFrame(animate);
 
+    // Animación continua suave
     cube.rotation.x += 0.005;
     cube.rotation.y += 0.005;
     sphere.rotation.y += 0.01;
@@ -96,8 +117,9 @@ function animate() {
 
 animate();
 
+// Ajustar tamaño de pantalla dinámicamente
 window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / (window.innerHeight * 0.8);
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
+    renderer.setSize(window.innerWidth, window.innerHeight);
 });
