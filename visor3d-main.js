@@ -94,21 +94,29 @@ controls.enableDamping = true;
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// FUNCIONALIDAD DE LOS BOTONES HTML
+// ==========================================
+// FUNCIONALIDAD DE LOS BOTONES HTML Y EL PANEL
+// ==========================================
 const panel = document.getElementById('panel-respuestas');
 const btnToggle = document.getElementById('btn-toggle-panel');
 const btnCerrar = document.getElementById('btn-cerrar-panel');
 
 btnToggle.addEventListener('click', () => {
-    panel.style.display = "block";
+    if (panel.style.display === "none" || panel.style.display === "") {
+        panel.style.display = "block";
+        btnToggle.innerText = "Ocultar Preguntas";
+    } else {
+        panel.style.display = "none";
+        btnToggle.innerText = "Ver Preguntas";
+    }
 });
 
 btnCerrar.addEventListener('click', () => {
     panel.style.display = "none";
+    btnToggle.innerText = "Ver Preguntas";
 });
 
 // CLIC EN EL CANVAS (Para las figuras)
-// Usamos renderer.domElement para que el clic en los botones no afecte al 3D
 renderer.domElement.addEventListener('click', (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -121,21 +129,22 @@ renderer.domElement.addEventListener('click', (event) => {
     if (intersects.length > 0) {
         const obj = intersects[0].object;
         
-        // Cambiar color aleatorio
         if (obj.material && obj.material.color) {
             obj.material.color.setHex(Math.random() * 0xffffff);
         }
         
         if (info) info.innerText = "Seleccionaste: " + (obj.userData.nombre || "Objeto");
 
-        // Actualizar y mostrar el panel de preguntas
+        // Actualizar el panel
         if (panel && obj.userData && obj.userData.respuestas) {
             document.getElementById('titulo-objeto').innerText = obj.userData.nombre;
             document.getElementById('contenido-respuestas').innerHTML = obj.userData.respuestas;
+            
+            // Mostrar panel automáticamente y sincronizar botón
             panel.style.display = "block";
+            btnToggle.innerText = "Ocultar Preguntas";
         }
     } else {
-        // YA NO SE OCULTA EL PANEL, solo actualizamos el letrero superior
         if (info) info.innerText = "Selecciona un objeto con el mouse";
     }
 });

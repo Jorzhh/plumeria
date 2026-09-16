@@ -21,25 +21,28 @@ body {
     box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
 }
 
-/* Diseño del botón flotante */
+/* Diseño del botón flotante MEJORADO */
 #btn-toggle-panel {
     position: absolute;
     bottom: 30px;
     left: 30px;
-    padding: 12px 20px;
-    background-color: #0ea5e9;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 50px;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     z-index: 200;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+    box-shadow: 0px 4px 15px rgba(37, 99, 235, 0.4);
+    transition: all 0.3s ease;
 }
 
 #btn-toggle-panel:hover {
-    background-color: #0284c7;
+    transform: translateY(-3px);
+    box-shadow: 0px 8px 20px rgba(37, 99, 235, 0.6);
+    background: linear-gradient(135deg, #0284c7, #1d4ed8);
 }
 
 #panel-respuestas {
@@ -49,31 +52,44 @@ body {
     width: 350px;
     background-color: rgba(255, 255, 255, 0.95);
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
+    border-radius: 16px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
     font-family: Arial, sans-serif;
     color: #333;
     display: none; 
     z-index: 200;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Diseño de la "X" para cerrar */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Diseño de la "X" para cerrar MEJORADO */
 #btn-cerrar-panel {
     position: absolute;
     top: 15px;
     right: 15px;
-    background-color: #ef4444;
-    color: white;
+    background-color: #f3f4f6;
+    color: #6b7280;
     border: none;
     border-radius: 50%;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     font-weight: bold;
+    font-size: 14px;
     cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #btn-cerrar-panel:hover {
-    background-color: #dc2626;
+    background-color: #ef4444;
+    color: white;
 }
 
 #panel-respuestas h3 {
@@ -81,11 +97,11 @@ body {
     color: #0ea5e9;
     border-bottom: 2px solid #e2e8f0;
     padding-bottom: 10px;
-    margin-right: 20px; /* Evita que el texto choque con la X */
+    margin-right: 30px;
 }
 
 #panel-respuestas p {
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.6;
     margin-bottom: 12px;
 }
