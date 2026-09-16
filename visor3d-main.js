@@ -72,6 +72,7 @@ loader.load('models/animal.glb', function (gltf) {
     const modelo = gltf.scene;
     modelo.position.set(0, 0, 1.5); 
     modelo.scale.set(0.5, 0.5, 0.5); 
+    modelo.rotation.y = Math.PI; // Rota 180 grados en radianes
     scene.add(modelo);
     
     modelo.traverse((hijo) => {
