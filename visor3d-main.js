@@ -94,33 +94,48 @@ controls.enableDamping = true;
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// EVENTO DE CLIC SEGURO
-window.addEventListener('click', (event) => {
+// FUNCIONALIDAD DE LOS BOTONES HTML
+const panel = document.getElementById('panel-respuestas');
+const btnToggle = document.getElementById('btn-toggle-panel');
+const btnCerrar = document.getElementById('btn-cerrar-panel');
+
+btnToggle.addEventListener('click', () => {
+    panel.style.display = "block";
+});
+
+btnCerrar.addEventListener('click', () => {
+    panel.style.display = "none";
+});
+
+// CLIC EN EL CANVAS (Para las figuras)
+// Usamos renderer.domElement para que el clic en los botones no afecte al 3D
+renderer.domElement.addEventListener('click', (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(objetosInteractivos, true);
 
-    const panel = document.getElementById('panel-respuestas');
     const info = document.getElementById('ui-info');
 
     if (intersects.length > 0) {
         const obj = intersects[0].object;
         
+        // Cambiar color aleatorio
         if (obj.material && obj.material.color) {
             obj.material.color.setHex(Math.random() * 0xffffff);
         }
         
         if (info) info.innerText = "Seleccionaste: " + (obj.userData.nombre || "Objeto");
 
+        // Actualizar y mostrar el panel de preguntas
         if (panel && obj.userData && obj.userData.respuestas) {
             document.getElementById('titulo-objeto').innerText = obj.userData.nombre;
             document.getElementById('contenido-respuestas').innerHTML = obj.userData.respuestas;
             panel.style.display = "block";
         }
     } else {
-        if (panel) panel.style.display = "none";
+        // YA NO SE OCULTA EL PANEL, solo actualizamos el letrero superior
         if (info) info.innerText = "Selecciona un objeto con el mouse";
     }
 });

@@ -11,13 +11,19 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
-    <!-- Letrero superior -->
     <div id="ui-info">Selecciona un objeto con el mouse</div>
     
-    <!-- Tarjeta de preguntas (Inicia oculta) -->
+    <!-- NUEVO: Botón para mostrar el panel manualmente -->
+    <button id="btn-toggle-panel">Ver Preguntas</button>
+    
     <div id="panel-respuestas">
-        <h3 id="titulo-objeto">Objeto</h3>
-        <div id="contenido-respuestas"></div>
+        <!-- NUEVO: Botón para cerrar la tarjeta -->
+        <button id="btn-cerrar-panel">X</button>
+        
+        <h3 id="titulo-objeto">Bienvenido</h3>
+        <div id="contenido-respuestas">
+            <p>Haz clic en una figura para cargar sus respuestas aquí.</p>
+        </div>
     </div>
     
     <script src="visor3d-main.js"></script>
