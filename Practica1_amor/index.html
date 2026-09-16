@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visor 3D interactivo con Three.js</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="info">Haz clic en un objeto para seleccionarlo</div>
+  <script type="module" src="main.js"></script>
+
+
+  <section id="teoria">
+    <h2>Preguntas de Reflexion</h2>
+    <p><strong>¿Que funcion cumple la escena en Three.js?</strong> Es el contenedor 3D donde se posicionan todos los objetos, luces y camaras </p>
+    <p><strong>¿Para que sirve la camara?</strong> Define el punto de vista, angulo de vision y la perspectiva desde donde el usuario observa el entorno </p>
+    <p><strong>¿Que hace el renderer?</strong> Transforma la escena 3D y la camara en una imagen 2D que se dibuja en el navegador en cada fotograma </p>
+    <p><strong>¿Que permite hacer OrbitControls?</strong> Otorga control interactivo para orbitar, rotar, desplazar y hacer zoom alrededor de un punto de interes </p>
+    <p><strong>¿Que es el raycasting y para que lo usaste?</strong> Es una tecnica que dispara un rayo desde la pantalla hacia la escena 3D para detectar intersecciones con objetos y permitir la seleccion con el mouse</p>
+    <p><strong>¿Que dificultades tuviste al cargar modelos .glb o .gltf?</strong> ajuste de escalas gigantes o diminutas y el manejo de objetos anidados dentro de las mallas </p>
+    <p><strong>¿Como podrias usar este visor 3D en un proyecto real?</strong> En simulacion para gemelos digitales, videojuegos web en navegador, bioinformatica para manipular moleculas o en e-commerce para configuradores de productos 3D </p>
+  </section>
+</body>
+</html>
