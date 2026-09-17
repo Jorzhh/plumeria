@@ -109,18 +109,18 @@ body {
 /* Diseño para los nombres del equipo */
 #creditos-equipo {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 80px; /* <--- Aumentamos este valor para bajarlo */
+    left: 20px; /* <--- Para que quede alineado a la izquierda con el otro letrero */
     background-color: rgba(255, 255, 255, 0.9);
     padding: 12px 20px;
     border-radius: 8px;
     font-family: Arial, sans-serif;
     font-size: 14px;
     color: #333;
-    pointer-events: none; /* MUY IMPORTANTE: Evita que el recuadro bloquee el mouse en el 3D */
+    pointer-events: none; 
     z-index: 100;
     box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
-    border-left: 4px solid #0ea5e9; /* Línea decorativa azul */
+    border-left: 4px solid #0ea5e9; 
 }
 
 #creditos-equipo p {
