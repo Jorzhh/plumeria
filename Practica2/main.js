@@ -81,7 +81,7 @@ loader.load('./models/modelo.glb', function (gltf) {
 
     // También vamos a subirlo un poco para que no esté enterrado en el piso (0,0,0)
     // Probemos con 0.5 unidades hacia arriba
-    model.position.set(0, 0.5, 0); 
+    model.position.set(0, 0.3, 0); 
     // ----------------------------
     
     // Asignar datos al modelo completo
