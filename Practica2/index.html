@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor 3D interactivo con información de objetos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Panel de Información -->
+    <div id="info-panel" class="hidden">
+        <h2 id="info-name">Nombre del Objeto</h2>
+        <p><strong>Tipo:</strong> <span id="info-type">...</span></p>
+        <p><strong>Descripción:</strong> <span id="info-desc">...</span></p>
+        <p><strong>Dato extra:</strong> <span id="info-extra">...</span></p>
+    </div>
+
+    <!-- Controles HTML -->
+    <div id="controls">
+        <button id="btn-anim">Pausar/Reanudar Animación</button>
+        <button id="btn-color">Cambiar Color del Objeto</button>
+        <button id="btn-reset">Reiniciar Cámara</button>
+        <label for="light-slider">Luz:</label>
+        <input type="range" id="light-slider" min="0" max="2" step="0.1" value="1">
+    </div>
+
+    <!-- Carga de Three.js y scripts -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
