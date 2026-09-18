@@ -69,30 +69,44 @@ const obj5 = createObject(new THREE.ConeGeometry(1.5, 3, 32), 0xff55ff, new THRE
 
 // 4. CARGA DE MODELO EXTERNO (.glb o .gltf)
 const loader = new GLTFLoader();
-// Asegúrate de tener un archivo 'modelo.glb' en tu carpeta 'models'
+
+// ASEGÚRATE DE QUE TU ARCHIVO SE LLAME EXACTAMENTE ASÍ EN LA CARPETA 'models'
 loader.load('./models/modelo.glb', function (gltf) {
     const model = gltf.scene;
-    model.position.set(0, 0, 0);
-    model.scale.set(1, 1, 1); // Ajusta la escala si es muy grande o pequeño
+
+    // --- EL ARREGLO ESTÁ AQUÍ ---
+    // El modelo es gigante, así que lo escalamos a un 1% (0.01).
+    // Si sigue siendo muy grande, usa 0.001
+    model.scale.set(0.01, 0.01, 0.01); 
+
+    // También vamos a subirlo un poco para que no esté enterrado en el piso (0,0,0)
+    // Probemos con 0.5 unidades hacia arriba
+    model.position.set(0, 0.5, 0); 
+    // ----------------------------
     
     // Asignar datos al modelo completo
     model.userData = {
-        name: "Modelo Externo",
-        type: "Malla Compleja (.glb)",
-        description: "Modelo importado desde Blender o internet.",
-        extra: "Importancia: Alta"
+        name: "Lego Batman", // Nombre actualizado
+        type: "Figura Coleccionable (.glb)",
+        description: "Un modelo detallado de Lego Batman.",
+        extra: "Colección: LEGO DC"
     };
     
     scene.add(model);
     
-    // Agregar sus partes al raycaster
+    // Agregar sus partes al raycaster (esto sigue igual)
     model.traverse((child) => {
         if (child.isMesh) {
-            // Pasamos los datos del padre al hijo para que sea clickeable
             child.userData = model.userData; 
             interactableObjects.push(child);
         }
     });
+
+    // Pequeño truco para que la cámara mire justo a Batman al cargar
+    // (Opcional, pero ayuda a verlo de inmediato)
+    controls.target.set(0, 0.5, 0);
+    camera.position.set(0, 2, 5); // Una vista más cercana y elevada
+
 }, undefined, function (error) {
     console.error('Error cargando el modelo:', error);
 });
