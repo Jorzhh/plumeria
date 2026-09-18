@@ -27,6 +27,7 @@ body {
     position: absolute;
     bottom: 20px;
     left: 20px;
+    right: 20px; /* Para que ocupe todo el ancho disponible */
     background: rgba(0, 0, 0, 0.7);
     padding: 15px;
     border-radius: 8px;
@@ -34,6 +35,8 @@ body {
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap; /* ¡Esto permite que bajen de línea si no caben! */
+    justify-content: center;
 }
 
 button {
