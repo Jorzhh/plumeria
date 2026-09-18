@@ -77,7 +77,7 @@ loader.load('./models/modelo.glb', function (gltf) {
     // --- EL ARREGLO ESTÁ AQUÍ ---
     // El modelo es gigante, así que lo escalamos a un 1% (0.01).
     // Si sigue siendo muy grande, usa 0.001
-    model.scale.set(0.01, 0.01, 0.01); 
+    model.scale.set(0.1, 0.1, 0.1); 
 
     // También vamos a subirlo un poco para que no esté enterrado en el piso (0,0,0)
     // Probemos con 0.5 unidades hacia arriba
