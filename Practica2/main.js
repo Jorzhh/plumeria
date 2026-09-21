@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-// 1. CONFIGURACIÓN BÁSICA (Escena, Cámara, Renderer)
+// 1. CONFIGURACIÓN BÁSICA
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x333333); // Fondo oscuro
+scene.background = new THREE.Color(0x333333);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 5, 10);
@@ -16,7 +16,7 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// 2. ILUMINACIÓN (Ambiental y Direccional)
+// 2. ILUMINACIÓN
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
@@ -24,55 +24,43 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(5, 10, 5);
 scene.add(directionalLight);
 
-// Array para guardar todos los objetos interactuables
+// Array para el Raycaster
 const interactableObjects = [];
 
-// 3. CREACIÓN DE OBJETOS BÁSICOS (Mínimo 5, mínimo 3 geometrías)
+// 3. CREACIÓN DE OBJETOS BÁSICOS
 function createObject(geometry, color, position, data) {
     const material = new THREE.MeshStandardMaterial({ color: color });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.copy(position);
-    
-    // AQUÍ ESTÁ LA MAGIA: Guardamos la información dentro del mismo objeto 3D
     mesh.userData = data; 
-    
     scene.add(mesh);
     interactableObjects.push(mesh);
     return mesh;
 }
 
-// Objeto 1: Cubo
 const obj1 = createObject(new THREE.BoxGeometry(2, 2, 2), 0xff5555, new THREE.Vector3(-4, 1, 0), {
-    name: "Cubo Base", type: "Geometría Primitiva", description: "Un cubo estándar de proporciones iguales.", extra: "Categoría: Estructural"
+    name: "Cubo Base", type: "Geometría Primitiva", description: "Un cubo estándar.", extra: "Categoría: Estructural"
 });
-
-// Objeto 2: Esfera
 const obj2 = createObject(new THREE.SphereGeometry(1.5, 32, 32), 0x55ff55, new THREE.Vector3(0, 1.5, -3), {
-    name: "Núcleo Esférico", type: "Geometría Primitiva", description: "Esfera perfecta con alta resolución.", extra: "Función: Centro de gravedad"
+    name: "Núcleo Esférico", type: "Geometría Primitiva", description: "Esfera perfecta.", extra: "Función: Centro de gravedad"
 });
-
-// Objeto 3: Cilindro
 const obj3 = createObject(new THREE.CylinderGeometry(1, 1, 3, 32), 0x5555ff, new THREE.Vector3(4, 1.5, 0), {
-    name: "Columna", type: "Geometría Primitiva", description: "Un cilindro que sirve como soporte.", extra: "Categoría: Soporte"
+    name: "Columna", type: "Geometría Primitiva", description: "Un cilindro de soporte.", extra: "Categoría: Soporte"
 });
-
-// Objeto 4: Toroide (Dona)
 const obj4 = createObject(new THREE.TorusGeometry(1, 0.4, 16, 100), 0xffff55, new THREE.Vector3(-2, 1, 4), {
-    name: "Anillo", type: "Geometría Compleja", description: "Un toroide utilizado para demostrar rotación.", extra: "Tamaño: 2m diámetro"
+    name: "Anillo", type: "Geometría Compleja", description: "Un toroide.", extra: "Tamaño: 2m diámetro"
 });
-
-// Objeto 5: Cono
 const obj5 = createObject(new THREE.ConeGeometry(1.5, 3, 32), 0xff55ff, new THREE.Vector3(2, 1.5, 4), {
-    name: "Punta de Flecha", type: "Geometría Primitiva", description: "Cono apuntando hacia arriba.", extra: "Función: Indicador"
+    name: "Punta de Flecha", type: "Geometría Primitiva", description: "Cono indicador.", extra: "Función: Indicador"
 });
 
-// --- VARIABLES GLOBALES PARA LOS BOTONES NUEVOS ---
+// --- VARIABLES CLAVE PARA LOS BOTONES ---
 let externalModel = null; 
 const focusableObjects = [obj1, obj2, obj3, obj4, obj5]; 
 let currentFocusIndex = 0;
-// --------------------------------------------------
+// ----------------------------------------
 
-// 4. CARGA DE MODELO EXTERNO (.glb o .gltf)
+// 4. CARGA DE MODELO EXTERNO
 const loader = new GLTFLoader();
 
 loader.load('./models/modelo.glb', function (gltf) {
@@ -90,7 +78,7 @@ loader.load('./models/modelo.glb', function (gltf) {
     
     scene.add(model);
     
-    // Conectamos a Batman con los botones de la interfaz
+    // ¡AQUÍ ESTÁ LA CONEXIÓN PARA LOS BOTONES!
     externalModel = model; 
     focusableObjects.push(model);
     
@@ -108,7 +96,7 @@ loader.load('./models/modelo.glb', function (gltf) {
     console.error('Error cargando el modelo:', error);
 });
 
-// 5. RAYCASTING (Selección de objetos)
+// 5. RAYCASTING
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedObject = null;
@@ -120,6 +108,9 @@ const infoDesc = document.getElementById('info-desc');
 const infoExtra = document.getElementById('info-extra');
 
 window.addEventListener('click', (event) => {
+    // Si hacemos clic en los botones, no disparamos el raycaster
+    if(event.target.tagName === 'BUTTON' || event.target.tagName === 'INPUT') return;
+
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -158,26 +149,31 @@ document.getElementById('btn-color').addEventListener('click', () => {
     }
 });
 
-// Botón para ocultar/mostrar a Batman
+// Botón Ocultar/Mostrar Batman
 document.getElementById('btn-visibility').addEventListener('click', () => {
     if (externalModel) {
+        // Cambia la visibilidad al valor contrario (si es true, pasa a false)
         externalModel.visible = !externalModel.visible; 
     } else {
         alert("El modelo aún está cargando...");
     }
 });
 
-// Botón para cambiar entre diferentes objetos (Enfocar)
+// Botón Enfocar Siguiente Objeto
 document.getElementById('btn-cycle').addEventListener('click', () => {
     if (focusableObjects.length > 0) {
         currentFocusIndex = (currentFocusIndex + 1) % focusableObjects.length;
         const targetObj = focusableObjects[currentFocusIndex];
         
+        // Obtener la posición del objeto en el mundo
         const targetPosition = new THREE.Vector3();
         targetObj.getWorldPosition(targetPosition);
 
+        // Apuntar los controles al objeto
         controls.target.copy(targetPosition);
-        camera.position.set(targetPosition.x, targetPosition.y + 2, targetPosition.z + 4);
+        
+        // Mover la cámara un poco hacia arriba y hacia atrás del objeto para verlo bien
+        camera.position.set(targetPosition.x, targetPosition.y + 3, targetPosition.z + 5);
     }
 });
 
@@ -195,9 +191,15 @@ function animate() {
     requestAnimationFrame(animate);
 
     if (isAnimating) {
-        obj4.rotation.x += 0.01;
-        obj4.rotation.y += 0.01;
-        obj2.rotation.y += 0.02;
+        // Animamos TODAS las figuras primitivas
+        obj1.rotation.y += 0.01; // Cubo gira en Y
+        obj2.rotation.y += 0.02; // Esfera gira en Y
+        obj3.rotation.x += 0.01; // Cilindro gira en X
+        obj4.rotation.x += 0.01; // Toroide gira en X
+        obj4.rotation.y += 0.01; // Toroide gira en Y
+        obj5.rotation.z += 0.01; // Cono gira en Z
+        
+        // ¡Nota que no hay rotación para externalModel (Batman)!
     }
 
     controls.update();
