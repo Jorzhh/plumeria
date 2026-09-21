@@ -13,6 +13,10 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+// --- EXTRA: Habilitar sombras en el motor ---
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Sombras suaves
+
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
@@ -23,6 +27,18 @@ scene.add(ambientLight);
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(5, 10, 5);
 scene.add(directionalLight);
+
+// --- EXTRA: La luz proyecta sombras y creamos un piso ---
+directionalLight.castShadow = true;
+
+// Creamos un piso invisible o semi-transparente para recibir las sombras
+const floorGeo = new THREE.PlaneGeometry(50, 50);
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x222222, depthWrite: false });
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI / 2; // Lo acostamos
+floor.position.y = -2; // Lo bajamos un poco
+floor.receiveShadow = true;
+scene.add(floor);
 
 // Array para el Raycaster
 const interactableObjects = [];
@@ -35,6 +51,8 @@ function createObject(geometry, color, position, data) {
     mesh.userData = data; 
     scene.add(mesh);
     interactableObjects.push(mesh);
+    mesh.castShadow = true; // Proyecta sombra
+    mesh.receiveShadow = true; // Recibe sombra
     return mesh;
 }
 
@@ -85,6 +103,8 @@ loader.load('./models/modelo.glb', function (gltf) {
     model.traverse((child) => {
         if (child.isMesh) {
             child.userData = model.userData; 
+            child.castShadow = true;    // Batman proyecta sombra
+            child.receiveShadow = true; // Batman recibe sombra
             interactableObjects.push(child);
         }
     });
@@ -100,6 +120,43 @@ loader.load('./models/modelo.glb', function (gltf) {
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedObject = null;
+
+// --- EXTRA: Resaltado al pasar el mouse (Hover) ---
+let hoveredObject = null; // Guarda el objeto que estamos tocando
+
+window.addEventListener('mousemove', (event) => {
+    // Calculamos posición del mouse
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(interactableObjects, false);
+
+    if (intersects.length > 0) {
+        const object = intersects[0].object;
+        
+        // Si tocamos un objeto nuevo
+        if (hoveredObject !== object) {
+            // Apagamos el anterior si existía
+            if (hoveredObject && hoveredObject.material.emissive) {
+                hoveredObject.material.emissive.setHex(0x000000);
+            }
+            // Iluminamos el nuevo
+            hoveredObject = object;
+            if (hoveredObject.material.emissive) {
+                hoveredObject.material.emissive.setHex(0x444444); // Color de brillo
+            }
+            document.body.style.cursor = 'pointer'; // Cambia el cursor a una manita
+        }
+    } else {
+        // Si el mouse sale al vacío, apagamos el objeto
+        if (hoveredObject && hoveredObject.material.emissive) {
+            hoveredObject.material.emissive.setHex(0x000000);
+            hoveredObject = null;
+            document.body.style.cursor = 'default'; // Cursor normal
+        }
+    }
+});
 
 const infoPanel = document.getElementById('info-panel');
 const infoName = document.getElementById('info-name');
