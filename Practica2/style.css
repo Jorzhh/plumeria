@@ -121,3 +121,12 @@ button:hover { background-color: #45a049; }
 .qa-item { margin-bottom: 20px; }
 .qa-item h3 { margin: 0 0 5px 0; color: #1976D2; font-size: 16px; }
 .qa-item p { margin: 0; color: #555; font-size: 14px; line-height: 1.5; }
+
+.autores {
+    text-align: center;
+    background-color: #e3f2fd;
+    color: #1565c0;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
