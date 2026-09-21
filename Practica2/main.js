@@ -28,7 +28,6 @@ scene.add(directionalLight);
 const interactableObjects = [];
 
 // 3. CREACIÓN DE OBJETOS BÁSICOS (Mínimo 5, mínimo 3 geometrías)
-// Función auxiliar para crear objetos con datos
 function createObject(geometry, color, position, data) {
     const material = new THREE.MeshStandardMaterial({ color: color });
     const mesh = new THREE.Mesh(geometry, material);
@@ -67,26 +66,23 @@ const obj5 = createObject(new THREE.ConeGeometry(1.5, 3, 32), 0xff55ff, new THRE
     name: "Punta de Flecha", type: "Geometría Primitiva", description: "Cono apuntando hacia arriba.", extra: "Función: Indicador"
 });
 
+// --- VARIABLES GLOBALES PARA LOS BOTONES NUEVOS ---
+let externalModel = null; 
+const focusableObjects = [obj1, obj2, obj3, obj4, obj5]; 
+let currentFocusIndex = 0;
+// --------------------------------------------------
+
 // 4. CARGA DE MODELO EXTERNO (.glb o .gltf)
 const loader = new GLTFLoader();
 
-// ASEGÚRATE DE QUE TU ARCHIVO SE LLAME EXACTAMENTE ASÍ EN LA CARPETA 'models'
 loader.load('./models/modelo.glb', function (gltf) {
     const model = gltf.scene;
 
-    // --- EL ARREGLO ESTÁ AQUÍ ---
-    // El modelo es gigante, así que lo escalamos a un 1% (0.01).
-    // Si sigue siendo muy grande, usa 0.001
     model.scale.set(0.1, 0.1, 0.1); 
-
-    // También vamos a subirlo un poco para que no esté enterrado en el piso (0,0,0)
-    // Probemos con 0.5 unidades hacia arriba
     model.position.set(0, -0.1, 0); 
-    // ----------------------------
     
-    // Asignar datos al modelo completo
     model.userData = {
-        name: "Lego Batman", // Nombre actualizado
+        name: "Lego Batman", 
         type: "Figura Coleccionable (.glb)",
         description: "Un modelo detallado de Lego Batman.",
         extra: "Colección: LEGO DC"
@@ -94,7 +90,10 @@ loader.load('./models/modelo.glb', function (gltf) {
     
     scene.add(model);
     
-    // Agregar sus partes al raycaster (esto sigue igual)
+    // Conectamos a Batman con los botones de la interfaz
+    externalModel = model; 
+    focusableObjects.push(model);
+    
     model.traverse((child) => {
         if (child.isMesh) {
             child.userData = model.userData; 
@@ -102,10 +101,8 @@ loader.load('./models/modelo.glb', function (gltf) {
         }
     });
 
-    // Pequeño truco para que la cámara mire justo a Batman al cargar
-    // (Opcional, pero ayuda a verlo de inmediato)
     controls.target.set(0, 0.5, 0);
-    camera.position.set(0, 2, 5); // Una vista más cercana y elevada
+    camera.position.set(0, 2, 5); 
 
 }, undefined, function (error) {
     console.error('Error cargando el modelo:', error);
@@ -116,7 +113,6 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedObject = null;
 
-// Elementos del HTML
 const infoPanel = document.getElementById('info-panel');
 const infoName = document.getElementById('info-name');
 const infoType = document.getElementById('info-type');
@@ -124,20 +120,17 @@ const infoDesc = document.getElementById('info-desc');
 const infoExtra = document.getElementById('info-extra');
 
 window.addEventListener('click', (event) => {
-    // Normalizar coordenadas del mouse (-1 a +1)
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
 
-    // Calcular intersecciones
     const intersects = raycaster.intersectObjects(interactableObjects, false);
 
     if (intersects.length > 0) {
         selectedObject = intersects[0].object;
         const data = selectedObject.userData;
 
-        // Actualizar panel HTML
         infoName.textContent = data.name || "Sin nombre";
         infoType.textContent = data.type || "Desconocido";
         infoDesc.textContent = data.description || "Sin descripción";
@@ -145,7 +138,6 @@ window.addEventListener('click', (event) => {
         
         infoPanel.classList.remove('hidden');
     } else {
-        // Si clicamos al vacío, ocultamos el panel
         infoPanel.classList.add('hidden');
         selectedObject = null;
     }
@@ -160,10 +152,32 @@ document.getElementById('btn-anim').addEventListener('click', () => {
 
 document.getElementById('btn-color').addEventListener('click', () => {
     if (selectedObject && selectedObject.material) {
-        // Generar color aleatorio
         selectedObject.material.color.setHex(Math.random() * 0xffffff);
     } else {
-        alert("Primero selecciona un objeto haciendo clic en él.");
+        alert("Primero selecciona un objeto primitivo haciendo clic en él.");
+    }
+});
+
+// Botón para ocultar/mostrar a Batman
+document.getElementById('btn-visibility').addEventListener('click', () => {
+    if (externalModel) {
+        externalModel.visible = !externalModel.visible; 
+    } else {
+        alert("El modelo aún está cargando...");
+    }
+});
+
+// Botón para cambiar entre diferentes objetos (Enfocar)
+document.getElementById('btn-cycle').addEventListener('click', () => {
+    if (focusableObjects.length > 0) {
+        currentFocusIndex = (currentFocusIndex + 1) % focusableObjects.length;
+        const targetObj = focusableObjects[currentFocusIndex];
+        
+        const targetPosition = new THREE.Vector3();
+        targetObj.getWorldPosition(targetPosition);
+
+        controls.target.copy(targetPosition);
+        camera.position.set(targetPosition.x, targetPosition.y + 2, targetPosition.z + 4);
     }
 });
 
@@ -181,7 +195,6 @@ function animate() {
     requestAnimationFrame(animate);
 
     if (isAnimating) {
-        // Animamos algunas figuras
         obj4.rotation.x += 0.01;
         obj4.rotation.y += 0.01;
         obj2.rotation.y += 0.02;
