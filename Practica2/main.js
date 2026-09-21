@@ -186,6 +186,28 @@ document.getElementById('light-slider').addEventListener('input', (event) => {
     directionalLight.intensity = event.target.value;
 });
 
+
+// --- LÓGICA DEL MODAL DE PREGUNTAS ---
+const qaModal = document.getElementById('qa-modal');
+
+// Abrir modal
+document.getElementById('btn-qa').addEventListener('click', () => {
+    qaModal.classList.remove('hidden');
+});
+
+// Cerrar modal con la "X"
+document.getElementById('close-modal').addEventListener('click', () => {
+    qaModal.classList.add('hidden');
+});
+
+// Cerrar modal al hacer clic afuera de la caja blanca
+qaModal.addEventListener('click', (event) => {
+    if(event.target === qaModal) {
+        qaModal.classList.add('hidden');
+    }
+});
+// -------------------------------------
+
 // 7. ANIMACIÓN (requestAnimationFrame)
 function animate() {
     requestAnimationFrame(animate);

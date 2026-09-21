@@ -15,6 +15,57 @@
         <p><strong>Dato extra:</strong> <span id="info-extra">...</span></p>
     </div>
 
+    <!-- Botón flotante para abrir las respuestas -->
+    <button id="btn-qa" class="floating-btn">📖 Ver Respuestas del Proyecto</button>
+
+    <!-- Ventana Modal de Respuestas -->
+    <div id="qa-modal" class="hidden">
+        <div class="modal-content">
+            <span id="close-modal">&times;</span>
+            <h2>Respuestas de la Práctica</h2>
+            
+            <div class="qa-item">
+                <h3>¿Qué tema representa tu visor 3D?</h3>
+                <p>Representa un "Mini museo 3D" o visor de figuras de colección interactivo, combinando geometría básica con modelos complejos.</p>
+            </div>
+
+            <div class="qa-item">
+                <h3>¿Qué objetos agregaste a la escena?</h3>
+                <p>Agregué cinco figuras primitivas (un cubo, una esfera, un cilindro, un toroide y un cono) y un modelo externo complejo.</p>
+            </div>
+
+            <div class="qa-item">
+                <h3>¿Qué información aparece cuando seleccionas un objeto?</h3>
+                <p>Aparece un panel interactivo mostrando el Nombre del objeto, el Tipo (si es geometría primitiva o modelo externo), una Descripción y un Dato extra (como su función, categoría o colección).</p>
+            </div>
+
+            <div class="qa-item">
+                <h3>¿Cómo implementaste el raycasting?</h3>
+                <p>Instanciando <code>THREE.Raycaster()</code> y capturando el evento <code>click</code> del mouse. Las coordenadas 2D de la pantalla se normalizan y el raycaster proyecta un vector desde la cámara hacia la escena 3D, detectando intersecciones con un arreglo llamado <code>interactableObjects</code>.</p>
+            </div>
+
+            <div class="qa-item">
+                <h3>¿Qué controles agregaste para modificar la escena?</h3>
+                <p>Agregué seis controles: Pausar/Reanudar animación, Cambiar color aleatorio, Ocultar/Mostrar el modelo externo, Enfocar el siguiente objeto (movimiento de cámara), Reiniciar la posición de la cámara y un Slider para modificar la intensidad de la luz direccional.</p>
+            </div>
+
+            <div class="qa-item">
+                <h3>¿Qué modelo .glb o .gltf utilizaste?</h3>
+                <p>Utilicé un modelo <code>.glb</code> de un Lego Batman.</p>
+            </div>
+
+            <div class="qa-item">
+                <h3>¿Qué parte del proyecto fue la más difícil?</h3>
+                <p>Ajustar la escala del modelo externo (Lego Batman) ya que al importarlo era gigante, y lograr que los botones de la interfaz HTML no interfirieran con el raycaster de la escena 3D.</p>
+            </div>
+
+            <div class="qa-item">
+                <h3>¿Cómo podrías mejorar este visor si lo conectaras después con PHP, FlightPHP y SQLite?</h3>
+                <p>Podría crear una base de datos en SQLite con la información de cada figura. Usando FlightPHP crearía una API REST. Así, en lugar de tener la información "quemada" (hardcodeada) en JavaScript, haría una petición <code>fetch()</code> al servidor PHP para obtener y mostrar datos dinámicos, permitiendo actualizar el museo sin modificar el código fuente 3D.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Controles HTML -->
     <div id="controls">
         <button id="btn-anim">Pausar/Reanudar Animación</button>

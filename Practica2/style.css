@@ -49,3 +49,75 @@ button {
 }
 
 button:hover { background-color: #45a049; }
+
+/* Botón flotante superior */
+.floating-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #2196F3;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+}
+.floating-btn:hover { background-color: #1976D2; }
+
+/* Fondo oscuro de la ventana modal */
+#qa-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    transition: opacity 0.3s ease;
+}
+
+#qa-modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Caja de contenido del modal */
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #2196F3;
+    padding-bottom: 10px;
+}
+
+/* Botón de cerrar (la X) */
+#close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+}
+#close-modal:hover { color: #f44336; }
+
+/* Estilo de las preguntas */
+.qa-item { margin-bottom: 20px; }
+.qa-item h3 { margin: 0 0 5px 0; color: #1976D2; font-size: 16px; }
+.qa-item p { margin: 0; color: #555; font-size: 14px; line-height: 1.5; }
