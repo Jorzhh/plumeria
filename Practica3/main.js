@@ -191,6 +191,174 @@ crearRamaConHojasYFlores(1.5, 0.6, 0);       // Rama derecha
 crearRamaConHojasYFlores(1.8, -0.5, 0.4);    // Rama izquierda/adelante
 crearRamaConHojasYFlores(2.5, -0.2, -0.5);   // Rama superior/atrás
 
+// --- AMBIENTE DE JARDÍN BOTÁNICO ---
+// 1. Niebla Atmosférica (Le da profundidad al jardín)
+scene.fog = new THREE.FogExp2(0x87CEEB, 0.025);
+
+// 2. Camino de Piedra para visitantes
+const caminoGeo = new THREE.PlaneGeometry(6, 60);
+const caminoMat = new THREE.MeshStandardMaterial({ color: 0x999999, roughness: 1 });
+const camino = new THREE.Mesh(caminoGeo, caminoMat);
+camino.rotation.x = -Math.PI / 2;
+// Lo ponemos a la derecha de la maceta y un milímetro arriba del pasto
+camino.position.set(7, 0.01, 0); 
+camino.receiveShadow = true;
+scene.add(camino);
+
+// 3. Letrero Interactivo (Ficha Técnica)
+const letreroGroup = new THREE.Group();
+letreroGroup.position.set(2.5, 0, 2.5); // Lo ponemos frente a la maceta
+letreroGroup.rotation.y = -0.5;
+
+// Usamos tu función crearParte para que reaccione al clic y muestre información
+const poste = crearParte(new THREE.CylinderGeometry(0.08, 0.08, 1.2), 0x4a3b2c, "Poste de Letrero", "Cilindro", "1.2m", "Soporte de madera del jardín.");
+poste.position.y = 0.6;
+letreroGroup.add(poste);
+
+const cartel = crearParte(new THREE.BoxGeometry(1.2, 0.8, 0.05), 0xf0f0f0, "Ficha Botánica", "Cubo", "1.2m", "Plumeria Rubra - Cuidar no tocar las flores.");
+cartel.position.y = 1.2;
+cartel.position.z = 0.05;
+letreroGroup.add(cartel);
+scene.add(letreroGroup);
+
+// 4. Árboles de fondo (Generación procedural para rellenar el escenario)
+// 4. Árboles de fondo (Generación procedural para rellenar el escenario)
+function crearArbolFondo(x, z) {
+    const arbol = new THREE.Group();
+    
+    const tronco = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.7, 3), new THREE.MeshStandardMaterial({ color: 0x3d2817 }));
+    tronco.position.y = 1.5;
+    tronco.castShadow = true;
+    arbol.add(tronco);
+    
+    const copa = new THREE.Mesh(new THREE.SphereGeometry(2.5, 16, 16), new THREE.MeshStandardMaterial({ color: 0x234215 }));
+    copa.position.y = 4;
+    copa.castShadow = true;
+    arbol.add(copa);
+    
+    // --- MAGIA DEL TAMAÑO ---
+    // Genera un número aleatorio entre 1.5 y 3.5
+    const tamaño = 1.5 + (Math.random() * 2); 
+    
+    // Aplicamos ese tamaño al ancho, alto y profundidad (x, y, z)
+    arbol.scale.set(tamaño, tamaño, tamaño);
+    // ------------------------
+
+    arbol.position.set(x, 0, z);
+    scene.add(arbol);
+}
+
+// Plantamos varios árboles en los bordes para cerrar el escenario
+crearArbolFondo(-10, -8);
+crearArbolFondo(15, -10);
+crearArbolFondo(-12, 6);
+crearArbolFondo(10, 15);
+crearArbolFondo(-5, 14);
+crearArbolFondo(6, -15);
+
+
+// ==========================================
+// MÁS FLORA PARA EL JARDÍN BOTÁNICO
+// ==========================================
+
+// 1. Función para crear Arbustos (Agrupación de esferas)
+// ==========================================
+// MÁS FLORA PARA EL JARDÍN BOTÁNICO (MASIVA)
+// ==========================================
+
+// 1. Función para crear Arbustos
+function crearArbusto(x, z, escala) {
+    const arbustoGroup = new THREE.Group();
+    const materialArbusto = new THREE.MeshStandardMaterial({ color: 0x1e4311, roughness: 0.9 });
+
+    const esfera1 = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 16), materialArbusto);
+    esfera1.position.set(0, 0.8, 0);
+    esfera1.castShadow = true;
+
+    const esfera2 = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16, 16), materialArbusto);
+    esfera2.position.set(0.6, 0.6, 0.5);
+    esfera2.castShadow = true;
+
+    const esfera3 = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 16), materialArbusto);
+    esfera3.position.set(-0.5, 0.5, -0.4);
+    esfera3.castShadow = true;
+
+    arbustoGroup.add(esfera1, esfera2, esfera3);
+    arbustoGroup.position.set(x, 0, z);
+    arbustoGroup.scale.set(escala, escala, escala);
+    scene.add(arbustoGroup);
+}
+
+// 2. Función para crear Flores Silvestres
+function crearFlorSilvestre(x, z) {
+    const florGroup = new THREE.Group();
+    
+    const tallo = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.6), new THREE.MeshStandardMaterial({ color: 0x4CAF50 }));
+    tallo.position.y = 0.3;
+    tallo.castShadow = true;
+    florGroup.add(tallo);
+
+    const colores = [0xff0055, 0xff9900, 0xcc00ff, 0x00ccff, 0xffff00];
+    const colorAleatorio = colores[Math.floor(Math.random() * colores.length)];
+    
+    const cabeza = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), new THREE.MeshStandardMaterial({ color: colorAleatorio }));
+    cabeza.position.y = 0.65;
+    cabeza.castShadow = true;
+    florGroup.add(cabeza);
+
+    const escala = 0.5 + Math.random() * 0.8;
+    florGroup.scale.set(escala, escala, escala);
+    florGroup.position.set(x, 0, z);
+    scene.add(florGroup);
+}
+
+// 3. NUEVA: Función para crear Agave / Suculenta (Usando Conos)
+function crearAgave(x, z) {
+    const agaveGroup = new THREE.Group();
+    const materialAgave = new THREE.MeshStandardMaterial({ color: 0x2E6B3A }); // Verde azulado
+    
+    // Generamos 6 pencas (hojas) en círculo
+    for(let i=0; i<6; i++) {
+        const hoja = new THREE.Mesh(new THREE.ConeGeometry(0.2, 1.5, 4), materialAgave);
+        hoja.position.y = 0.5;
+        hoja.rotation.x = 0.6; // Inclinamos el cono hacia afuera
+        hoja.castShadow = true;
+        
+        const pivot = new THREE.Group();
+        pivot.rotation.y = (i * Math.PI * 2) / 6;
+        pivot.add(hoja);
+        agaveGroup.add(pivot);
+    }
+    
+    agaveGroup.position.set(x, 0, z);
+    const escala = 0.5 + Math.random() * 1.5; // Tamaños aleatorios
+    agaveGroup.scale.set(escala, escala, escala);
+    scene.add(agaveGroup);
+}
+
+
+// 4. ¡GENERACIÓN MASIVA POR TODO EL TERRENO!
+// Disparamos 150 plantas al azar por todo el plano de 50x50
+for (let i = 0; i < 150; i++) {
+    // Generamos posiciones X y Z entre -22 y 22 (para no salirnos del plano de 50x50)
+    let posX = (Math.random() - 0.5) * 44;
+    let posZ = (Math.random() - 0.5) * 44;
+
+    // REGLA: Si la coordenada está muy cerca del centro (maceta o cartel), NO plantamos nada ahí
+    if (Math.abs(posX) < 4 && Math.abs(posZ) < 4) {
+        continue; // Se salta este ciclo y deja el espacio libre
+    }
+
+    // Elegimos al azar qué planta generar (33% de probabilidad para cada una)
+    let tipo = Math.random();
+    if (tipo < 0.33) {
+        crearFlorSilvestre(posX, posZ);
+    } else if (tipo < 0.66) {
+        crearArbusto(posX, posZ, 0.5 + Math.random() * 1.5);
+    } else {
+        crearAgave(posX, posZ);
+    }
+}
 
 // ==========================================
 // 5. RAYCASTING (Selección)
