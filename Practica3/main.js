@@ -336,6 +336,39 @@ function crearAgave(x, z) {
     scene.add(agaveGroup);
 }
 
+// NUEVA FUNCIÓN: Macetas decorativas de relleno
+function crearMacetaDecorativa(x, z, escala) {
+    const macetaExtra = new THREE.Group();
+
+    // 1. La maceta (Cilindro color barro)
+    const macetaGeo = new THREE.CylinderGeometry(0.8, 0.6, 1.2, 16);
+    const macetaMat = new THREE.MeshStandardMaterial({ color: 0x6e3b22, roughness: 0.9 });
+    const macetaMesh = new THREE.Mesh(macetaGeo, macetaMat);
+    macetaMesh.position.y = 0.6;
+    macetaMesh.castShadow = true;
+    macetaExtra.add(macetaMesh);
+
+    // 2. Planta de relleno (Esfera alargada tipo arbusto/cactus)
+    const plantaGeo = new THREE.SphereGeometry(0.6, 16, 16);
+    const plantaMat = new THREE.MeshStandardMaterial({ color: 0x1e4311, roughness: 0.8 });
+    const plantaMesh = new THREE.Mesh(plantaGeo, plantaMat);
+    plantaMesh.scale.set(1, 2, 1); // La estiramos hacia arriba
+    plantaMesh.position.y = 1.6;
+    plantaMesh.castShadow = true;
+    macetaExtra.add(plantaMesh);
+
+    macetaExtra.position.set(x, 0, z);
+    macetaExtra.scale.set(escala, escala, escala);
+    scene.add(macetaExtra);
+}
+
+// Plantamos varias macetas adornando los alrededores y el camino
+crearMacetaDecorativa(5, 5, 0.8);
+crearMacetaDecorativa(4.5, -2, 1);
+crearMacetaDecorativa(-2, 8, 0.7);
+crearMacetaDecorativa(8, -8, 1.2);
+crearMacetaDecorativa(-6, -4, 0.9);
+crearMacetaDecorativa(9, 2, 0.6);
 
 // 4. ¡GENERACIÓN MASIVA POR TODO EL TERRENO!
 // Disparamos 150 plantas al azar por todo el plano de 50x50
