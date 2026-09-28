@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
 // ==========================================
 // 1. CONFIGURACIÓN BÁSICA
 // ==========================================
@@ -63,7 +64,6 @@ function crearParte(geometria, color, nombre, tipo, altura, desc) {
 // ==========================================
 
 // --- MACETA ---
-// Usamos Cilindro (Geometría 2) y Toroide (Geometría 3)
 const macetaGroup = new THREE.Group();
 scene.add(macetaGroup);
 
@@ -131,41 +131,6 @@ function crearRamaConHojasYFlores(posY, rotZ, rotX) {
     const centroFlor = crearParte(new THREE.SphereGeometry(0.15, 16, 16), 0xFFD700, "Centro de Flor", "Esfera", "~82 cm", "Contiene el polen.");
     florGroup.add(centroFlor);
 
-    // --- EXTRA: ELEMENTO DECORATIVO EXTERNO (.glb) ---
-const loader = new GLTFLoader();
-
-// Ajusta la ruta si tu archivo se llama diferente o está en otra carpeta
-loader.load('./assets/decoracion.glb', function (gltf) {
-    const decoracion = gltf.scene;
-
-    // Ajustes de tamaño y posición (modifica esto dependiendo de qué tan grande esté tu modelo)
-    decoracion.scale.set(0.5, 0.5, 0.5); 
-    decoracion.position.set(3, 0, 2); // Lo movemos a la derecha (X=3) y adelante (Z=2)
-    
-    // Le asignamos sus datos para el panel interactivo
-    decoracion.userData = {
-        name: "Elemento Decorativo", 
-        type: "Modelo 3D Externo (.glb)",
-        height: "Nivel del suelo",
-        desc: "Decoración complementaria del jardín botánico."
-    };
-    
-    scene.add(decoracion);
-    
-    // Hacemos que reciba/proyecte sombras y lo metemos al Raycaster
-    decoracion.traverse((child) => {
-        if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-            child.userData = decoracion.userData; 
-            interactableObjects.push(child);
-        }
-    });
-
-}, undefined, function (error) {
-    console.error('Error cargando el modelo decorativo:', error);
-});
-
     // 5 Pétalos
     for(let i = 0; i < 5; i++) {
         const petaloGeo = new THREE.SphereGeometry(0.25, 16, 16);
@@ -187,12 +152,38 @@ loader.load('./assets/decoracion.glb', function (gltf) {
 }
 
 // Creamos 3 ramas con la función procedural
-crearRamaConHojasYFlores(1.5, 0.6, 0);       // Rama derecha
-crearRamaConHojasYFlores(1.8, -0.5, 0.4);    // Rama izquierda/adelante
-crearRamaConHojasYFlores(2.5, -0.2, -0.5);   // Rama superior/atrás
+crearRamaConHojasYFlores(1.5, 0.6, 0);       
+crearRamaConHojasYFlores(1.8, -0.5, 0.4);    
+crearRamaConHojasYFlores(2.5, -0.2, -0.5);   
+
+// --- EXTRA: ELEMENTO DECORATIVO EXTERNO (.glb) ---
+const loader = new GLTFLoader();
+loader.load('./assets/decoracion.glb', function (gltf) {
+    const decoracion = gltf.scene;
+    decoracion.scale.set(0.5, 0.5, 0.5); 
+    decoracion.position.set(3, 0, 2); 
+    decoracion.userData = {
+        name: "Elemento Decorativo", 
+        type: "Modelo 3D Externo (.glb)",
+        height: "Nivel del suelo",
+        desc: "Decoración complementaria del jardín botánico."
+    };
+    scene.add(decoracion);
+    decoracion.traverse((child) => {
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            child.userData = decoracion.userData; 
+            interactableObjects.push(child);
+        }
+    });
+}, undefined, function (error) {
+    console.error('Error cargando el modelo decorativo:', error);
+});
+
 
 // --- AMBIENTE DE JARDÍN BOTÁNICO ---
-// 1. Niebla Atmosférica (Le da profundidad al jardín)
+// 1. Niebla Atmosférica
 scene.fog = new THREE.FogExp2(0x87CEEB, 0.025);
 
 // 2. Camino de Piedra para visitantes
@@ -200,17 +191,15 @@ const caminoGeo = new THREE.PlaneGeometry(6, 60);
 const caminoMat = new THREE.MeshStandardMaterial({ color: 0x999999, roughness: 1 });
 const camino = new THREE.Mesh(caminoGeo, caminoMat);
 camino.rotation.x = -Math.PI / 2;
-// Lo ponemos a la derecha de la maceta y un milímetro arriba del pasto
 camino.position.set(7, 0.01, 0); 
 camino.receiveShadow = true;
 scene.add(camino);
 
 // 3. Letrero Interactivo (Ficha Técnica)
 const letreroGroup = new THREE.Group();
-letreroGroup.position.set(2.5, 0, 2.5); // Lo ponemos frente a la maceta
+letreroGroup.position.set(2.5, 0, 2.5); 
 letreroGroup.rotation.y = -0.5;
 
-// Usamos tu función crearParte para que reaccione al clic y muestre información
 const poste = crearParte(new THREE.CylinderGeometry(0.08, 0.08, 1.2), 0x4a3b2c, "Poste de Letrero", "Cilindro", "1.2m", "Soporte de madera del jardín.");
 poste.position.y = 0.6;
 letreroGroup.add(poste);
@@ -221,11 +210,9 @@ cartel.position.z = 0.05;
 letreroGroup.add(cartel);
 scene.add(letreroGroup);
 
-// 4. Árboles de fondo (Generación procedural para rellenar el escenario)
-// 4. Árboles de fondo (Generación procedural para rellenar el escenario)
+// 4. Árboles de fondo
 function crearArbolFondo(x, z) {
     const arbol = new THREE.Group();
-    
     const tronco = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.7, 3), new THREE.MeshStandardMaterial({ color: 0x3d2817 }));
     tronco.position.y = 1.5;
     tronco.castShadow = true;
@@ -236,19 +223,11 @@ function crearArbolFondo(x, z) {
     copa.castShadow = true;
     arbol.add(copa);
     
-    // --- MAGIA DEL TAMAÑO ---
-    // Genera un número aleatorio entre 1.5 y 3.5
     const tamaño = 1.5 + (Math.random() * 2); 
-    
-    // Aplicamos ese tamaño al ancho, alto y profundidad (x, y, z)
     arbol.scale.set(tamaño, tamaño, tamaño);
-    // ------------------------
-
     arbol.position.set(x, 0, z);
     scene.add(arbol);
 }
-
-// Plantamos varios árboles en los bordes para cerrar el escenario
 crearArbolFondo(-10, -8);
 crearArbolFondo(15, -10);
 crearArbolFondo(-12, 6);
@@ -258,131 +237,68 @@ crearArbolFondo(6, -15);
 
 
 // ==========================================
-// MÁS FLORA PARA EL JARDÍN BOTÁNICO
-// ==========================================
-
-// 1. Función para crear Arbustos (Agrupación de esferas)
-// ==========================================
 // MÁS FLORA PARA EL JARDÍN BOTÁNICO (MASIVA)
 // ==========================================
-
-// 1. Función para crear Arbustos
 function crearArbusto(x, z, escala) {
     const arbustoGroup = new THREE.Group();
     const materialArbusto = new THREE.MeshStandardMaterial({ color: 0x1e4311, roughness: 0.9 });
-
     const esfera1 = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 16), materialArbusto);
     esfera1.position.set(0, 0.8, 0);
     esfera1.castShadow = true;
-
     const esfera2 = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16, 16), materialArbusto);
     esfera2.position.set(0.6, 0.6, 0.5);
     esfera2.castShadow = true;
-
     const esfera3 = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 16), materialArbusto);
     esfera3.position.set(-0.5, 0.5, -0.4);
     esfera3.castShadow = true;
-
     arbustoGroup.add(esfera1, esfera2, esfera3);
     arbustoGroup.position.set(x, 0, z);
     arbustoGroup.scale.set(escala, escala, escala);
     scene.add(arbustoGroup);
 }
 
-// 2. Función para crear Flores Silvestres
 function crearFlorSilvestre(x, z) {
     const florGroup = new THREE.Group();
-    
     const tallo = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.6), new THREE.MeshStandardMaterial({ color: 0x4CAF50 }));
     tallo.position.y = 0.3;
     tallo.castShadow = true;
     florGroup.add(tallo);
-
     const colores = [0xff0055, 0xff9900, 0xcc00ff, 0x00ccff, 0xffff00];
     const colorAleatorio = colores[Math.floor(Math.random() * colores.length)];
-    
     const cabeza = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), new THREE.MeshStandardMaterial({ color: colorAleatorio }));
     cabeza.position.y = 0.65;
     cabeza.castShadow = true;
     florGroup.add(cabeza);
-
     const escala = 0.5 + Math.random() * 0.8;
     florGroup.scale.set(escala, escala, escala);
     florGroup.position.set(x, 0, z);
     scene.add(florGroup);
 }
 
-// 3. NUEVA: Función para crear Agave / Suculenta (Usando Conos)
 function crearAgave(x, z) {
     const agaveGroup = new THREE.Group();
-    const materialAgave = new THREE.MeshStandardMaterial({ color: 0x2E6B3A }); // Verde azulado
-    
-    // Generamos 6 pencas (hojas) en círculo
+    const materialAgave = new THREE.MeshStandardMaterial({ color: 0x2E6B3A }); 
     for(let i=0; i<6; i++) {
         const hoja = new THREE.Mesh(new THREE.ConeGeometry(0.2, 1.5, 4), materialAgave);
         hoja.position.y = 0.5;
-        hoja.rotation.x = 0.6; // Inclinamos el cono hacia afuera
+        hoja.rotation.x = 0.6; 
         hoja.castShadow = true;
-        
         const pivot = new THREE.Group();
         pivot.rotation.y = (i * Math.PI * 2) / 6;
         pivot.add(hoja);
         agaveGroup.add(pivot);
     }
-    
     agaveGroup.position.set(x, 0, z);
-    const escala = 0.5 + Math.random() * 1.5; // Tamaños aleatorios
+    const escala = 0.5 + Math.random() * 1.5; 
     agaveGroup.scale.set(escala, escala, escala);
     scene.add(agaveGroup);
 }
 
-// NUEVA FUNCIÓN: Macetas decorativas de relleno
-function crearMacetaDecorativa(x, z, escala) {
-    const macetaExtra = new THREE.Group();
-
-    // 1. La maceta (Cilindro color barro)
-    const macetaGeo = new THREE.CylinderGeometry(0.8, 0.6, 1.2, 16);
-    const macetaMat = new THREE.MeshStandardMaterial({ color: 0x6e3b22, roughness: 0.9 });
-    const macetaMesh = new THREE.Mesh(macetaGeo, macetaMat);
-    macetaMesh.position.y = 0.6;
-    macetaMesh.castShadow = true;
-    macetaExtra.add(macetaMesh);
-
-    // 2. Planta de relleno (Esfera alargada tipo arbusto/cactus)
-    const plantaGeo = new THREE.SphereGeometry(0.6, 16, 16);
-    const plantaMat = new THREE.MeshStandardMaterial({ color: 0x1e4311, roughness: 0.8 });
-    const plantaMesh = new THREE.Mesh(plantaGeo, plantaMat);
-    plantaMesh.scale.set(1, 2, 1); // La estiramos hacia arriba
-    plantaMesh.position.y = 1.6;
-    plantaMesh.castShadow = true;
-    macetaExtra.add(plantaMesh);
-
-    macetaExtra.position.set(x, 0, z);
-    macetaExtra.scale.set(escala, escala, escala);
-    scene.add(macetaExtra);
-}
-
-// Plantamos varias macetas adornando los alrededores y el camino
-crearMacetaDecorativa(5, 5, 0.8);
-crearMacetaDecorativa(4.5, -2, 1);
-crearMacetaDecorativa(-2, 8, 0.7);
-crearMacetaDecorativa(8, -8, 1.2);
-crearMacetaDecorativa(-6, -4, 0.9);
-crearMacetaDecorativa(9, 2, 0.6);
-
-// 4. ¡GENERACIÓN MASIVA POR TODO EL TERRENO!
-// Disparamos 150 plantas al azar por todo el plano de 50x50
+// Generación masiva por todo el terreno
 for (let i = 0; i < 150; i++) {
-    // Generamos posiciones X y Z entre -22 y 22 (para no salirnos del plano de 50x50)
     let posX = (Math.random() - 0.5) * 44;
     let posZ = (Math.random() - 0.5) * 44;
-
-    // REGLA: Si la coordenada está muy cerca del centro (maceta o cartel), NO plantamos nada ahí
-    if (Math.abs(posX) < 4 && Math.abs(posZ) < 4) {
-        continue; // Se salta este ciclo y deja el espacio libre
-    }
-
-    // Elegimos al azar qué planta generar (33% de probabilidad para cada una)
+    if (Math.abs(posX) < 4 && Math.abs(posZ) < 4) continue;
     let tipo = Math.random();
     if (tipo < 0.33) {
         crearFlorSilvestre(posX, posZ);
@@ -392,6 +308,61 @@ for (let i = 0; i < 150; i++) {
         crearAgave(posX, posZ);
     }
 }
+
+// MACETAS DECORATIVAS Y JARDINERAS (Las agregadas recientemente)
+function crearMacetaDecorativa(x, z, escala) {
+    const macetaExtra = new THREE.Group();
+    const macetaGeo = new THREE.CylinderGeometry(0.8, 0.6, 1.2, 16);
+    const macetaMat = new THREE.MeshStandardMaterial({ color: 0x6e3b22, roughness: 0.9 });
+    const macetaMesh = new THREE.Mesh(macetaGeo, macetaMat);
+    macetaMesh.position.y = 0.6;
+    macetaMesh.castShadow = true;
+    macetaExtra.add(macetaMesh);
+    const plantaGeo = new THREE.SphereGeometry(0.6, 16, 16);
+    const plantaMat = new THREE.MeshStandardMaterial({ color: 0x1e4311, roughness: 0.8 });
+    const plantaMesh = new THREE.Mesh(plantaGeo, plantaMat);
+    plantaMesh.scale.set(1, 2, 1); 
+    plantaMesh.position.y = 1.6;
+    plantaMesh.castShadow = true;
+    macetaExtra.add(plantaMesh);
+    macetaExtra.position.set(x, 0, z);
+    macetaExtra.scale.set(escala, escala, escala);
+    scene.add(macetaExtra);
+}
+
+function crearMacetaCuadrada(x, z, escala) {
+    const macetaCuadrada = new THREE.Group();
+    const macetaGeo = new THREE.BoxGeometry(1.2, 1, 1.2);
+    const macetaMat = new THREE.MeshStandardMaterial({ color: 0x5a3a22, roughness: 0.9 });
+    const macetaMesh = new THREE.Mesh(macetaGeo, macetaMat);
+    macetaMesh.position.y = 0.5;
+    macetaMesh.castShadow = true;
+    macetaCuadrada.add(macetaMesh);
+    const plantaMat = new THREE.MeshStandardMaterial({ color: 0x275a22, roughness: 0.8 });
+    const hoja1 = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 16), plantaMat);
+    hoja1.position.set(0, 1.2, 0);
+    hoja1.castShadow = true;
+    const hoja2 = new THREE.Mesh(new THREE.SphereGeometry(0.45, 16, 16), plantaMat);
+    hoja2.position.set(0.4, 1.0, 0.4);
+    hoja2.castShadow = true;
+    const hoja3 = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), plantaMat);
+    hoja3.position.set(-0.4, 1.1, -0.3);
+    hoja3.castShadow = true;
+    macetaCuadrada.add(hoja1, hoja2, hoja3);
+    macetaCuadrada.position.set(x, 0, z);
+    macetaCuadrada.scale.set(escala, escala, escala);
+    scene.add(macetaCuadrada);
+}
+
+// Mezclamos los "cactus" redondos y las jardineras cuadradas
+crearMacetaDecorativa(5, 5, 0.8);      
+crearMacetaCuadrada(4.5, -3, 1.2);     
+crearMacetaDecorativa(-2, 8, 0.7);     
+crearMacetaCuadrada(8, -7, 1);         
+crearMacetaDecorativa(-6, -4, 0.9);    
+crearMacetaCuadrada(9, 2, 0.8);        
+crearMacetaCuadrada(-8, 3, 1.1);       
+
 
 // ==========================================
 // 5. RAYCASTING (Selección)
@@ -406,7 +377,6 @@ const infoHeight = document.getElementById('info-height');
 const infoDesc = document.getElementById('info-desc');
 
 let objetoResaltado = null;
-const colorResalte = 0xffa500; // Naranja al pasar el mouse
 
 window.addEventListener('click', (event) => {
     if(event.target.tagName === 'BUTTON' || event.target.tagName === 'INPUT') return;
@@ -444,7 +414,7 @@ window.addEventListener('mousemove', (event) => {
         if (objetoResaltado !== obj) {
             if (objetoResaltado) objetoResaltado.material.emissive.setHex(0x000000);
             objetoResaltado = obj;
-            objetoResaltado.material.emissive.setHex(0x333333); // Brillo suave
+            objetoResaltado.material.emissive.setHex(0x333333); 
             document.body.style.cursor = 'pointer';
         }
     } else {
@@ -457,7 +427,7 @@ window.addEventListener('mousemove', (event) => {
 });
 
 // ==========================================
-// 6. CONTROLES HTML
+// 6. CONTROLES HTML Y DÍA/NOCHE
 // ==========================================
 let isWindy = true;
 
@@ -466,9 +436,7 @@ document.getElementById('btn-anim').addEventListener('click', () => {
 });
 
 document.getElementById('btn-color-hojas').addEventListener('click', () => {
-    // Generar color aleatorio
     const randomColor = Math.random() * 0xffffff;
-    // Aplicar a TODAS las hojas iterando el arreglo
     arrayHojas.forEach(hoja => {
         hoja.material.color.setHex(randomColor);
     });
@@ -485,17 +453,13 @@ document.getElementById('btn-reset').addEventListener('click', () => {
     controls.target.set(0, 3, 0);
 });
 
+// EVENTO DE LUZ CORREGIDO (Oscurece cielo y ambiente)
 document.getElementById('light-slider').addEventListener('input', (event) => {
     const valorLuz = parseFloat(event.target.value);
     
-    // 1. Bajamos la luz principal
     directionalLight.intensity = valorLuz;
+    ambientLight.intensity = valorLuz * 0.6; 
     
-    // 2. Bajamos la luz ambiental para que realmente se oscurezca todo
-    ambientLight.intensity = valorLuz * 0.6; // 0.6 era su valor original
-    
-    // 3. Magia extra: Oscurecemos el cielo y la niebla
-    // Multiplicamos el color original por el valor de la luz para apagar el cielo
     const tonoCielo = new THREE.Color(0x87CEEB).multiplyScalar(Math.max(0.1, valorLuz)); 
     scene.background = tonoCielo;
     
@@ -515,11 +479,8 @@ function animate() {
     if (isWindy) {
         const time = clock.getElapsedTime();
         
-        // El viento mueve TODA la planta desde la base gracias a la jerarquía
         planta.rotation.z = Math.sin(time * 1.5) * 0.05;
         planta.rotation.x = Math.cos(time * 1.2) * 0.03;
-        
-        // Movimiento sutil interno del tallo
         tallo.rotation.y = Math.sin(time * 0.5) * 0.1;
     }
 
