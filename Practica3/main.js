@@ -453,7 +453,22 @@ document.getElementById('btn-reset').addEventListener('click', () => {
 });
 
 document.getElementById('light-slider').addEventListener('input', (event) => {
-    directionalLight.intensity = event.target.value;
+    const valorLuz = parseFloat(event.target.value);
+    
+    // 1. Bajamos la luz principal
+    directionalLight.intensity = valorLuz;
+    
+    // 2. Bajamos la luz ambiental para que realmente se oscurezca todo
+    ambientLight.intensity = valorLuz * 0.6; // 0.6 era su valor original
+    
+    // 3. Magia extra: Oscurecemos el cielo y la niebla
+    // Multiplicamos el color original por el valor de la luz para apagar el cielo
+    const tonoCielo = new THREE.Color(0x87CEEB).multiplyScalar(Math.max(0.1, valorLuz)); 
+    scene.background = tonoCielo;
+    
+    if (scene.fog) {
+        scene.fog.color = tonoCielo;
+    }
 });
 
 // ==========================================
