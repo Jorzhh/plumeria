@@ -353,15 +353,76 @@ function crearMacetaCuadrada(x, z, escala) {
     macetaCuadrada.scale.set(escala, escala, escala);
     scene.add(macetaCuadrada);
 }
+// NUEVA FUNCIÓN 3: Maceta ancha con flores de colores
+function crearMacetaConFlores(x, z, escala) {
+    const macetaFlores = new THREE.Group();
 
-// Mezclamos los "cactus" redondos y las jardineras cuadradas
-crearMacetaDecorativa(5, 5, 0.8);      
-crearMacetaCuadrada(4.5, -3, 1.2);     
-crearMacetaDecorativa(-2, 8, 0.7);     
-crearMacetaCuadrada(8, -7, 1);         
-crearMacetaDecorativa(-6, -4, 0.9);    
-crearMacetaCuadrada(9, 2, 0.8);        
-crearMacetaCuadrada(-8, 3, 1.1);       
+    // 1. La maceta (Cilindro más ancho arriba y angosto abajo tipo tazón)
+    const macetaGeo = new THREE.CylinderGeometry(0.9, 0.6, 0.8, 16);
+    const macetaMat = new THREE.MeshStandardMaterial({ color: 0xc27a4e, roughness: 0.9 }); // Barro anaranjado
+    const macetaMesh = new THREE.Mesh(macetaGeo, macetaMat);
+    macetaMesh.position.y = 0.4;
+    macetaMesh.castShadow = true;
+    macetaFlores.add(macetaMesh);
+
+    // 2. Tierra (Un disco oscuro en la parte superior)
+    const tierraGeo = new THREE.CylinderGeometry(0.85, 0.85, 0.05, 16);
+    const tierraMat = new THREE.MeshStandardMaterial({ color: 0x3b2a1a });
+    const tierraMesh = new THREE.Mesh(tierraGeo, tierraMat);
+    tierraMesh.position.y = 0.8;
+    macetaFlores.add(tierraMesh);
+
+    // 3. Pequeño ramo de 3 flores
+    const colores = [0xff0055, 0xff9900, 0xcc00ff, 0x00ccff, 0xffff00];
+    
+    for (let i = 0; i < 3; i++) {
+        const florGroup = new THREE.Group();
+        
+        // Tallo
+        const tallo = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5), new THREE.MeshStandardMaterial({ color: 0x4CAF50 }));
+        tallo.position.y = 0.25;
+        tallo.castShadow = true;
+        florGroup.add(tallo);
+
+        // Cabeza de la flor (Color aleatorio)
+        const colorAleatorio = colores[Math.floor(Math.random() * colores.length)];
+        const cabeza = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), new THREE.MeshStandardMaterial({ color: colorAleatorio }));
+        cabeza.position.y = 0.5;
+        cabeza.castShadow = true;
+        florGroup.add(cabeza);
+
+        // Posicionar cada flor en triángulo dentro de la maceta
+        florGroup.position.x = Math.cos(i * Math.PI * 2 / 3) * 0.35;
+        florGroup.position.z = Math.sin(i * Math.PI * 2 / 3) * 0.35;
+        florGroup.position.y = 0.8; 
+        
+        // Inclinarlas un poquito hacia afuera
+        florGroup.rotation.x = Math.sin(i * Math.PI * 2 / 3) * 0.3;
+        florGroup.rotation.z = -Math.cos(i * Math.PI * 2 / 3) * 0.3;
+
+        macetaFlores.add(florGroup);
+    }
+
+    macetaFlores.position.set(x, 0, z);
+    macetaFlores.scale.set(escala, escala, escala);
+    scene.add(macetaFlores);
+}
+
+// ========================================================
+// REEMPLAZA TU BLOQUE DE LLAMADAS ANTERIOR POR ESTE:
+// Ahora mezclamos los 3 tipos de macetas por todo el camino
+// ========================================================
+crearMacetaDecorativa(5, 5, 0.8);      // Cactus redondo
+crearMacetaConFlores(3.5, 0, 0.7);     // NUEVA: Maceta floral
+crearMacetaCuadrada(4.5, -3, 1.2);     // Jardinera cuadrada
+crearMacetaConFlores(8, 5, 0.9);       // NUEVA: Maceta floral
+crearMacetaDecorativa(-2, 8, 0.7);     // Cactus redondo
+crearMacetaCuadrada(8, -7, 1);         // Jardinera cuadrada
+crearMacetaConFlores(-4, 5, 0.8);      // NUEVA: Maceta floral
+crearMacetaDecorativa(-6, -4, 0.9);    // Cactus redondo
+crearMacetaCuadrada(9, 2, 0.8);        // Jardinera cuadrada
+crearMacetaConFlores(6, -10, 1.1);     // NUEVA: Maceta floral
+crearMacetaCuadrada(-8, 3, 1.1);       // Jardinera cuadrada extra     
 
 
 // ==========================================
