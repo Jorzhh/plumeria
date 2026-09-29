@@ -1,26 +1,192 @@
-body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; background-color: #1a252c; }
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    user-select: none;
+}
 
+/* Panel de Información Raycasting */
 #info-panel {
-    position: absolute; top: 20px; right: 20px; width: 280px;
-    background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-left: 5px solid #27ae60;
-    transition: opacity 0.3s;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(20, 35, 25, 0.88);
+    color: #ffffff;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    max-width: 260px;
+    z-index: 5;
 }
-#info-panel.hidden { opacity: 0; pointer-events: none; }
-#info-panel h2 { margin-top: 0; color: #2E7D32; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-#info-growth { font-weight: bold; color: #d35400; }
 
-#controls {
-    position: absolute; bottom: 20px; left: 20px; right: 20px;
-    background: rgba(0, 0, 0, 0.8); padding: 15px; border-radius: 8px; color: white;
-    display: flex; flex-direction: column; gap: 15px; align-items: center;
+#info-panel.hidden, .modal.hidden {
+    display: none;
 }
-.control-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-.sliders label { display: flex; flex-direction: column; font-size: 14px; color: #ecf0f1; font-weight: bold; }
+
+#info-panel h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    color: #a8f060;
+}
+
+#info-panel p {
+    margin: 5px 0;
+    font-size: 0.85rem;
+}
+
+#info-growth {
+    color: #ffee58;
+    font-weight: bold;
+}
+
+/* Modal de Preguntas / Reporte */
+.modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-content {
+    background: #1b2e22;
+    color: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    max-width: 650px;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close-btn:hover {
+    color: white;
+}
+
+.modal-body h3 {
+    color: #81c784;
+    font-size: 0.95rem;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.modal-body p {
+    font-size: 0.85rem;
+    color: #d1e7dd;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Barra de Controles Inferior (Ultra Compacta en 1 Fila) */
+#controls {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 28, 20, 0.92);
+    padding: 4px 10px;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 0.7rem;
+    z-index: 10;
+    max-width: 98vw;
+    overflow-x: auto;
+    white-space: nowrap;
+
+    /* Oculta la barra de desplazamiento */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#controls::-webkit-scrollbar {
+    display: none;
+}
+
+.separator {
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+    margin: 0 2px;
+}
 
 button {
-    cursor: pointer; padding: 8px 12px; border: none; border-radius: 4px;
-    background-color: #27ae60; color: white; font-weight: bold; transition: 0.2s;
+    background: #2e7d32;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.7rem;
+    transition: background 0.2s ease;
+    white-space: nowrap;
 }
-button:hover { background-color: #2ecc71; }
-#creditos { position: absolute; top: 20px; left: 20px; color: rgba(255,255,255,0.6); pointer-events: none; }
+
+button:hover {
+    background: #388e3c;
+}
+
+.btn-highlight {
+    background: #0288d1;
+}
+
+.btn-highlight:hover {
+    background: #03a9f4;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+}
+
+input[type="range"] {
+    accent-color: #81c784;
+    cursor: pointer;
+    width: 45px;
+}
+
+/* Marca de Agua / Créditos (Posicionado arriba de los botones) */
+#creditos {
+    position: absolute;
+    bottom: 52px; /* Eleva el texto para que no se solape con la barra de botones */
+    right: 15px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.72rem;
+    background: rgba(15, 28, 20, 0.85);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+    z-index: 9;
+}
