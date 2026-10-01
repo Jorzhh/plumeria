@@ -97,7 +97,7 @@ body {
     margin: 0;
 }
 
-/* Barra de Controles Inferior */
+/* Barra de Controles Inferior (Ultra Compacta en 1 Fila) */
 #controls {
     position: absolute;
     bottom: 12px;
@@ -110,7 +110,7 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 5px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -121,6 +121,7 @@ body {
     overflow-x: auto;
     white-space: nowrap;
 
+    /* Oculta la barra de desplazamiento */
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
@@ -174,10 +175,10 @@ input[type="range"] {
     width: 45px;
 }
 
-/* Marca de Agua / Créditos */
+/* Marca de Agua / Créditos (Posicionado arriba de los botones) */
 #creditos {
     position: absolute;
-    bottom: 52px;
+    bottom: 52px; /* Eleva el texto para que no se solape con la barra de botones */
     right: 15px;
     color: rgba(255, 255, 255, 0.85);
     font-size: 0.72rem;

@@ -1,4 +1,3 @@
-javascript
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
@@ -24,7 +23,7 @@ controls.enableDamping = true;
 controls.target.set(0, 2.5, 0);
 
 // ==========================================
-// 2. ILUMINACIÓN Y SHADERS GLSL (NUEVO)
+// 2. ILUMINACIÓN
 // ==========================================
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
 scene.add(ambientLight);
@@ -36,7 +35,7 @@ directionalLight.shadow.mapSize.width = 1024;
 directionalLight.shadow.mapSize.height = 1024;
 scene.add(directionalLight);
 
-// SUELO
+// Suelo del Jardín Botánico
 const pisoGeo = new THREE.PlaneGeometry(60, 60);
 const pisoMat = new THREE.MeshStandardMaterial({ color: 0x3d6b52, roughness: 0.9 });
 const piso = new THREE.Mesh(pisoGeo, pisoMat);
@@ -44,6 +43,7 @@ piso.rotation.x = -Math.PI / 2;
 piso.receiveShadow = true;
 scene.add(piso);
 
+// Camino de Piedra
 const caminoGeo = new THREE.PlaneGeometry(6, 60);
 const caminoMat = new THREE.MeshStandardMaterial({ color: 0x808a87, roughness: 1 });
 const camino = new THREE.Mesh(caminoGeo, caminoMat);
@@ -51,45 +51,6 @@ camino.rotation.x = -Math.PI / 2;
 camino.position.set(6, 0.01, 0);
 camino.receiveShadow = true;
 scene.add(camino);
-
-// --- SHADERS PERSONALIZADOS PARA HOJAS ---
-const leafVertexShader = `
-    uniform float time;
-    uniform float windIntensity;
-    varying vec2 vUv;
-    void main() {
-        vUv = uv;
-        vec3 pos = position;
-        // Efecto viento: Se mueve más en la punta (pos.y alto) que en la base
-        pos.x += sin(time * 3.0 + pos.y * 5.0) * windIntensity * pos.y * 0.25;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-    }
-`;
-
-const leafFragmentShader = `
-    uniform vec3 colorBottom;
-    uniform vec3 colorTop;
-    varying vec2 vUv;
-    void main() {
-        // Degradado de verde oscuro a verde brillante/color personalizado
-        vec3 finalColor = mix(colorBottom, colorTop, vUv.y);
-        gl_FragColor = vec4(finalColor, 1.0);
-    }
-`;
-
-const shaderUniforms = {
-    time: { value: 0 },
-    windIntensity: { value: 0.8 },
-    colorBottom: { value: new THREE.Color(0x274e2b) }, 
-    colorTop: { value: new THREE.Color(0x9ee32b) }     
-};
-
-const matHojaShader = new THREE.ShaderMaterial({
-    vertexShader: leafVertexShader,
-    fragmentShader: leafFragmentShader,
-    uniforms: shaderUniforms,
-    side: THREE.DoubleSide
-});
 
 // ==========================================
 // 3. ARREGLOS Y LÓGICA DE SIMULACIÓN DE CRECIMIENTO
@@ -129,6 +90,7 @@ const matMaceta = new THREE.MeshStandardMaterial({ color: 0x7a4228, roughness: 0
 const matBorde = new THREE.MeshStandardMaterial({ color: 0x522b18, roughness: 0.8 });
 const matTierra = new THREE.MeshStandardMaterial({ color: 0x301e14, roughness: 1.0 });
 const matTallo = new THREE.MeshStandardMaterial({ color: 0x274e2b, roughness: 0.7 });
+const matHoja = new THREE.MeshStandardMaterial({ color: 0x9ee32b, roughness: 0.4, side: THREE.DoubleSide });
 const matPetalo = new THREE.MeshStandardMaterial({ color: 0xfafafa, roughness: 0.3 });
 const matCentroFlor = new THREE.MeshStandardMaterial({ color: 0xffc800, roughness: 0.2 });
 
@@ -136,6 +98,7 @@ const matCentroFlor = new THREE.MeshStandardMaterial({ color: 0xffc800, roughnes
 // 4. PLANTA PRINCIPAL CON CRECIMIENTO (PLUMERIA)
 // ==========================================
 
+// Maceta Fija
 const macetaGroup = new THREE.Group();
 const baseMaceta = crearParteInteractiva(new THREE.CylinderGeometry(1.35, 0.85, 1.9, 32), matMaceta, "Base de Maceta", "Cilindro", "0 a 20 cm", "Contiene la tierra y raíces.");
 baseMaceta.position.y = 0.95;
@@ -150,11 +113,12 @@ tierra.position.y = 1.85;
 macetaGroup.add(tierra);
 scene.add(macetaGroup);
 
-// Estructura Jerárquica
+// Estructura Jerárquica de la Planta
 const planta = new THREE.Group();
 planta.position.y = 1.85;
 scene.add(planta);
 
+// Tallo Principal
 const geoTallo = new THREE.CylinderGeometry(0.18, 0.24, 3.0, 16);
 geoTallo.translate(0, 1.5, 0);
 const tallo = crearParteCrecimiento(geoTallo, matTallo, "Tallo Principal", "CylinderGeometry", "20 a 60 cm", "Estructura leñosa central.", 0.0, 0.35);
@@ -165,11 +129,13 @@ function crearCopaPlumeria(posY, rotZ, rotX, delay) {
     ramaGroup.position.set(0, posY, 0);
     ramaGroup.rotation.set(rotX, 0, rotZ);
 
+    // Rama Secundaria
     const ramaGeo = new THREE.CylinderGeometry(0.12, 0.17, 1.4, 16);
     ramaGeo.translate(0, 0.7, 0);
     const rama = crearParteCrecimiento(ramaGeo, matTallo, "Rama Secundaria", "CylinderGeometry", "60 a 80 cm", "Sostiene la corona de hojas.", 0.25 + delay, 0.55 + delay);
     ramaGroup.add(rama);
 
+    // Corona de Hojas
     const coronaHojas = new THREE.Group();
     coronaHojas.position.y = 1.35;
     ramaGroup.add(coronaHojas);
@@ -179,8 +145,7 @@ function crearCopaPlumeria(posY, rotZ, rotX, delay) {
 
     for (let i = 0; i < 5; i++) {
         const escalaHoja = new THREE.Vector3(0.75, 0.06, 2.7);
-        // Implementación del ShaderMaterial en las Hojas
-        const hoja = crearParteCrecimiento(geoHoja, matHojaShader, "Hoja con Shader GLSL", "SphereGeometry (Escalada)", "~80 cm", "Shader reacciona al viento.", 0.50 + delay, 0.80 + delay, escalaHoja);
+        const hoja = crearParteCrecimiento(geoHoja, matHoja.clone(), "Hoja de Plumeria", "SphereGeometry (Escalada)", "~80 cm", "Hoja chata verde lima para fotosíntesis.", 0.50 + delay, 0.80 + delay, escalaHoja);
 
         const pivotHoja = new THREE.Group();
         pivotHoja.rotation.y = (i * Math.PI * 2) / 5;
@@ -191,6 +156,7 @@ function crearCopaPlumeria(posY, rotZ, rotX, delay) {
         arrayHojas.push(hoja);
     }
 
+    // Flores
     const florGroup = new THREE.Group();
     florGroup.position.y = 1.4;
 
@@ -222,8 +188,10 @@ crearCopaPlumeria(2.2, 0.55, -0.25, 0.12);
 crearCopaPlumeria(1.9, -0.55, 0.25, 0.22);
 
 // ==========================================
-// 5. ECOSISTEMA DEL JARDÍN (Fondo masivo)
+// 5. ECOSISTEMA DEL JARDÍN (ENTORNO COMPLETO)
 // ==========================================
+
+// Letrero Botánico
 const letreroGroup = new THREE.Group();
 letreroGroup.position.set(2.2, 0, 2.2);
 letreroGroup.rotation.y = -0.4;
@@ -237,20 +205,24 @@ cartel.position.set(0, 1.1, 0.03);
 letreroGroup.add(cartel);
 scene.add(letreroGroup);
 
+// Árboles Gigantes de Fondo
 function crearArbolFondo(x, z, escala = 1) {
     const arbol = new THREE.Group();
     const tronco = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 3.5), new THREE.MeshStandardMaterial({ color: 0x3d2817 }));
     tronco.position.y = 1.75;
     tronco.castShadow = true;
     arbol.add(tronco);
+
     const copa = new THREE.Mesh(new THREE.SphereGeometry(3.2, 16, 16), new THREE.MeshStandardMaterial({ color: 0x224828, roughness: 0.9 }));
     copa.position.y = 4.8;
     copa.castShadow = true;
     arbol.add(copa);
+
     arbol.position.set(x, 0, z);
     arbol.scale.set(escala, escala, escala);
     scene.add(arbol);
 }
+
 crearArbolFondo(-9, -7, 1.8);
 crearArbolFondo(12, -8, 2.0);
 crearArbolFondo(-11, 5, 1.6);
@@ -258,6 +230,7 @@ crearArbolFondo(11, 12, 1.7);
 crearArbolFondo(-5, 13, 1.9);
 crearArbolFondo(5, -14, 2.1);
 
+// Arbustos, Flores Silvestres y Agaves
 function crearArbusto(x, z, escala) {
     const arbustoGroup = new THREE.Group();
     const matArbusto = new THREE.MeshStandardMaterial({ color: 0x284f22, roughness: 0.9 });
@@ -267,6 +240,7 @@ function crearArbusto(x, z, escala) {
     e2.position.set(0.6, 0.6, 0.4);
     const e3 = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 16), matArbusto);
     e3.position.set(-0.5, 0.5, -0.4);
+
     arbustoGroup.add(e1, e2, e3);
     arbustoGroup.position.set(x, 0, z);
     arbustoGroup.scale.set(escala, escala, escala);
@@ -278,10 +252,12 @@ function crearFlorSilvestre(x, z) {
     const t = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.6), new THREE.MeshStandardMaterial({ color: 0x4CAF50 }));
     t.position.y = 0.3;
     florGroup.add(t);
+
     const colores = [0xff0055, 0xff9900, 0xcc00ff, 0x00ccff, 0xffff00];
     const c = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), new THREE.MeshStandardMaterial({ color: colores[Math.floor(Math.random() * colores.length)] }));
     c.position.y = 0.65;
     florGroup.add(c);
+
     florGroup.position.set(x, 0, z);
     const esc = 0.6 + Math.random() * 0.6;
     florGroup.scale.set(esc, esc, esc);
@@ -316,6 +292,7 @@ for (let i = 0; i < 120; i++) {
     else crearAgave(px, pz);
 }
 
+// Macetas Decorativas Secundarias
 function crearMacetaDecorativa(x, z, escala) {
     const g = new THREE.Group();
     const m = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.5, 1.0, 16), new THREE.MeshStandardMaterial({ color: 0x6e3b22 }));
@@ -422,19 +399,48 @@ window.addEventListener('click', (event) => {
     }
 });
 
+window.addEventListener('mousemove', (event) => {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(interactableObjects, false);
+
+    if (intersects.length > 0) {
+        const obj = intersects[0].object;
+        if (objetoResaltado !== obj) {
+            if (objetoResaltado) objetoResaltado.material.emissive.setHex(0x000000);
+            objetoResaltado = obj;
+            objetoResaltado.material.emissive.setHex(0x333333);
+            document.body.style.cursor = 'pointer';
+        }
+    } else {
+        if (objetoResaltado) {
+            objetoResaltado.material.emissive.setHex(0x000000);
+            objetoResaltado = null;
+            document.body.style.cursor = 'default';
+        }
+    }
+});
+
 // ==========================================
 // 7. CONTROLES HTML Y EVENTOS MODAL
 // ==========================================
+let isWindy = true;
+let windSpeed = 1.0;
 
-// Interacción con los Shaders
-document.getElementById('btn-color-hojas').addEventListener('click', () => {
-    // Al dar clic, el Uniform del Shader cambia de color
-    shaderUniforms.colorTop.value.setHex(Math.random() * 0xffffff);
+document.getElementById('btn-anim').addEventListener('click', () => {
+    isWindy = !isWindy;
 });
 
-document.getElementById('wind-slider').addEventListener('input', (e) => {
-    // El slider actualiza el Uniform en la tarjeta gráfica al instante
-    shaderUniforms.windIntensity.value = parseFloat(e.target.value);
+document.getElementById('wind-speed-slider').addEventListener('input', (e) => {
+    windSpeed = parseFloat(e.target.value);
+});
+
+document.getElementById('btn-color-hojas').addEventListener('click', () => {
+    const randomColor = Math.random() * 0xffffff;
+    arrayHojas.forEach(hoja => {
+        hoja.material.color.setHex(randomColor);
+    });
 });
 
 document.getElementById('btn-toggle-hojas').addEventListener('click', () => {
@@ -495,9 +501,6 @@ function animate() {
     const delta = clock.getDelta();
     const elapsedTime = clock.getElapsedTime();
 
-    // Actualiza el tiempo del Shader de viento en cada fotograma
-    shaderUniforms.time.value = elapsedTime;
-
     // 1. Simulación de Crecimiento Progresivo
     if (!isGrowthPaused && growthTime < 1.35) {
         growthTime += delta * 0.25 * growthSpeed;
@@ -519,12 +522,17 @@ function animate() {
         data.growthPercent = Math.floor(progress * 100);
     });
 
-    // 2. Movimiento de Viento Suave en Ramas (Afectado por el Slider)
-    const windForce = shaderUniforms.windIntensity.value;
-    if (windForce > 0) {
-        planta.rotation.z = Math.sin(elapsedTime * 1.5) * 0.03 * windForce;
-        planta.rotation.x = Math.cos(elapsedTime * 1.2) * 0.02 * windForce;
-        tallo.rotation.y = Math.sin(elapsedTime * 0.5) * 0.05 * windForce;
+    // 2. Movimiento de Viento Suave
+    if (isWindy && windSpeed > 0) {
+        const freq = 1 + windSpeed * 0.5;
+        planta.rotation.z = Math.sin(elapsedTime * 1.5 * freq) * 0.03 * windSpeed;
+        planta.rotation.x = Math.cos(elapsedTime * 1.2 * freq) * 0.02 * windSpeed;
+        tallo.rotation.y = Math.sin(elapsedTime * 0.5 * freq) * 0.05 * windSpeed;
+    } else {
+        // Regresa suavemente a la postura de reposo
+        planta.rotation.z = THREE.MathUtils.lerp(planta.rotation.z, 0, 0.1);
+        planta.rotation.x = THREE.MathUtils.lerp(planta.rotation.x, 0, 0.1);
+        tallo.rotation.y = THREE.MathUtils.lerp(tallo.rotation.y, 0, 0.1);
     }
 
     actualizarPanelInfo();
@@ -537,3 +545,5 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+animate();
