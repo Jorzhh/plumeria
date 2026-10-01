@@ -1,0 +1,74 @@
+<!-- Modal de Preguntas de la Práctica -->
+<div id="modal-preguntas" class="modal hidden">
+    <div class="modal-content">
+        <span id="close-modal" class="close-btn">&times;</span>
+        <h2>Reporte Práctica 04: Cuestionario de Simulación</h2>
+        <div class="modal-body">
+            <h3>1. ¿Qué tema representa tu simulador de crecimiento?</h3>
+            <p>Representa la simulación botánica e interacción morfológica en 3D de una especie vegetal (Plumeria Rubra) dentro de un jardín botánico, mostrando sus fases biológicas progresivas (tallo, ramificación, foliación y floración).</p>
+
+            <h3>2. ¿Cómo implementaste el bucle de animación con requestAnimationFrame?</h3>
+            <p>A través de la función `animate()`, reejecutada recursivamente con `requestAnimationFrame(animate)`. En cada fotograma se evalúa el tiempo delta transcurrido (`THREE.Clock`), actualizando la escala de crecimiento de cada objeto y renderizando la escena mediante `renderer.render(scene, camera)`.</p>
+
+            <h3>3. ¿Cómo animaste el crecimiento de la planta? (escala, posición, rotación)</h3>
+            <p>Mediante la interpolación de escala (`scale.set()`) ajustada con una curva suave (*smoothstep*). El origen/pivote geométrico de cada tallo y rama fue desplazado a su base (`translate(0, h/2, 0)`) para garantizar que el crecimiento ocurra de abajo hacia arriba de forma anatómica.</p>
+
+            <h3>4. ¿Cómo simulaste el viento? ¿Usaste shaders o transformaciones simples?</h3>
+            <p>Se implementó un sistema híbrido: transformaciones jerárquicas simples en JS (`Math.sin/cos`) para el balanceo del tronco y las ramas, combinadas con un Vertex Shader (GLSL) que deforma los vértices de las hojas dinámicamente según la intensidad del slider.</p>
+
+            <h3>5. ¿Qué controles agregaste para modificar la simulación?</h3>
+            <p>Pausa/Reanudación, reinicio de crecimiento, botón para alternar visibilidad, cambio aleatorio de color (Uniform del Shader), reset de cámara, y tres sliders dinámicos para: Velocidad de crecimiento, Intensidad del viento y Nivel de luz.</p>
+
+            <h3>6. ¿Cómo gestionaste la jerarquía para que el crecimiento se propague?</h3>
+            <p>Aprovechando la estructura de árbol de escena de Three.js (`THREE.Group` y `.add()`). Cada nodo hijo (hoja/flor) se anidó a su rama correspondiente. Además, el parámetro de inicio de crecimiento (`growStart`) tiene retrasos escalonados (*delays*) para desencadenar el crecimiento secuencial.</p>
+
+            <h3>7. ¿Qué shader personalizado usaste (si aplica) y qué efecto produce?</h3>
+            <p>Se implementó un `ShaderMaterial` puro en las hojas. El *Fragment Shader* produce un degradado desde verde oscuro en la base hasta verde claro en la punta usando `mix()`. El *Vertex Shader* desplaza los vértices en X basándose en el tiempo (`time`) y su altura local (`pos.y`) para simular el aleteo por el viento.</p>
+
+            <h3>8. ¿Qué parte del proyecto fue la más difícil?</h3>
+            <p>Sincronizar el *timeline* secuencial desfasado entre el crecimiento de ramas, hojas y flores, e inyectar correctamente las variables uniformes del slider de viento desde JavaScript hacia el código GLSL de la tarjeta gráfica en tiempo real.</p>
+
+            <h3>9. ¿Cómo podrías mejorar este simulador si lo conectaras después con PHP, FlightPHP y SQLite?</h3>
+            <p>Permitiría almacenar la configuración de crecimiento y colores de usuario en BD, guardar un registro histórico de simulaciones realizadas y servir dinámicamente un catálogo REST de múltiples especies botánicas con sus parámetros 3D.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Barra de Controles Inferior Ultra Compacta -->
+<div id="controls">
+    <button id="btn-restart-growth">Reiniciar</button>
+    <button id="btn-pause-growth">Pausar</button>
+    <button id="btn-color-hojas">Color Hojas</button>
+    <button id="btn-toggle-hojas">Ver/Ocultar Hojas</button>
+    <button id="btn-preguntas" class="btn-highlight">Reporte</button>
+    <button id="btn-reset">Reset Cam</button>
+
+    <span class="separator">|</span>
+
+    <label for="growth-speed-slider">
+        Vel:
+        <input type="range" id="growth-speed-slider" min="0.1" max="3" step="0.1" value="1.0">
+    </label>
+    <label for="wind-slider">
+        Viento:
+        <input type="range" id="wind-slider" min="0" max="2" step="0.1" value="0.8">
+    </label>
+    <label for="light-slider">
+        Luz:
+        <input type="range" id="light-slider" min="0" max="2" step="0.1" value="1.0">
+    </label>
+</div>
+
+<!-- Marca de Agua / Créditos Reubicados -->
+<div id="creditos">Práctica 04: Animación y Simulación - Humberto Josue Orozco Espinosa y Irlanda Goreti Alvarez Lomeli</div>
+
+<!-- Carga de Three.js y OrbitControls -->
+<script type="importmap">
+    {
+        "imports": {
+            "three": "[https://unpkg.com/three@0.160.0/build/three.module.js](https://unpkg.com/three@0.160.0/build/three.module.js)",
+            "three/addons/": "[https://unpkg.com/three@0.160.0/examples/jsm/](https://unpkg.com/three@0.160.0/examples/jsm/)"
+        }
+    }
+</script>
+<script type="module" src="main.js"></script>
