@@ -5,35 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratorio Bioinformático de Cultivo 3D - Práctica 05</title>
     <link rel="stylesheet" href="css/style.css">
-    <!-- Chart.js para analítica en tiempo real -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div id="app-container">
-        <!-- BARRA LATERAL BIOINFORMÁTICA -->
+        <!-- BARRA LATERAL -->
         <aside id="sidebar">
             <header class="sidebar-header">
                 <h1>🌿 BioLab 3D · Práctica 05</h1>
                 <div class="sub-badge">Simulador & Soporte a Decisiones Agronómicas</div>
             </header>
 
-            <!-- PESTAÑAS -->
             <nav class="sidebar-tabs">
                 <button class="tab-btn active" data-tab="tab-cultivo">Cultivo</button>
                 <button class="tab-btn" data-tab="tab-kpi">KPIs</button>
+                <button class="tab-btn" data-tab="tab-salud">Estado Plantas</button>
                 <button class="tab-btn" data-tab="tab-ab">A/B Test</button>
                 <button class="tab-btn" data-tab="tab-historial">Historial</button>
                 <button class="tab-btn" data-tab="tab-reportes">Reportes</button>
                 <button class="tab-btn" data-tab="tab-info">Info</button>
             </nav>
 
-            <!-- ESTADO DE CONEXIÓN CON FLIGHTPHP & MYSQL -->
             <div id="api-status-bar">
                 <span><span class="status-dot"></span>API REST: <strong id="api-status-text" style="color: #a8f060;">Conectando...</strong></span>
                 <button id="btn-recheck-api" class="btn btn-sm" style="background: #1b3820; padding: 2px 7px;">Reconectar</button>
             </div>
 
-            <!-- TAB 1: PARÁMETROS DE CULTIVO -->
+            <!-- TAB 1: CULTIVO -->
             <section id="tab-cultivo" class="tab-panel active">
                 <h3>🧪 Configuración de Especie & Entorno</h3>
                 
@@ -73,22 +71,22 @@
 
                 <h4>☀️ Variables Ambientales de Cultivo</h4>
                 <div class="slider-group">
-                    <label>Temperatura: <span id="val-temp">25</span> °C <small id="opt-temp" style="color:#81c784;"></small></label>
+                    <label>Temperatura: <span id="val-temp">25</span> °C</label>
                     <input type="range" id="slider-temp" min="5" max="45" step="1" value="25">
                 </div>
 
                 <div class="slider-group">
-                    <label>Humedad Riego: <span id="val-agua">55</span> % <small id="opt-agua" style="color:#81c784;"></small></label>
+                    <label>Humedad Riego: <span id="val-agua">55</span> %</label>
                     <input type="range" id="slider-agua" min="5" max="95" step="1" value="55">
                 </div>
 
                 <div class="slider-group">
-                    <label>Luz / Radiación: <span id="val-luz">800</span> µmol/m²s <small id="opt-luz" style="color:#81c784;"></small></label>
+                    <label>Luz / Radiación: <span id="val-luz">800</span> µmol/m²s</label>
                     <input type="range" id="slider-luz" min="100" max="2500" step="50" value="800">
                 </div>
 
                 <div class="slider-group">
-                    <label>Nutrientes N-P-K: <span id="val-nutrientes">70</span> % <small id="opt-nutrientes" style="color:#81c784;"></small></label>
+                    <label>Nutrientes N-P-K: <span id="val-nutrientes">70</span> %</label>
                     <input type="range" id="slider-nutrientes" min="10" max="100" step="1" value="70">
                 </div>
 
@@ -97,30 +95,21 @@
                     <input type="range" id="slider-co2" min="300" max="1200" step="25" value="400">
                 </div>
 
-                <h4>⏱️ Ejecución y Simulación</h4>
-                <div class="btn-group">
-                    <button id="btn-sim-play" class="btn btn-primary">▶ Iniciar Simulación</button>
-                    <button id="btn-sim-pause" class="btn btn-warning">⏸ Pausar</button>
-                    <button id="btn-sim-step" class="btn btn-secondary">⏭ +1 Día</button>
-                    <button id="btn-sim-fast" class="btn btn-sm" style="background:#37474f; color:white;">⏩ Simular Ciclo Completo</button>
-                    <button id="btn-sim-reset" class="btn btn-danger btn-sm">↺ Reset 0%</button>
-                </div>
-
                 <div class="form-group" style="margin-top: 10px;">
                     <label for="input-sim-nombre">Nombre de la Simulación:</label>
-                    <input type="text" id="input-sim-nombre" value="Ensayo Plumeria Rubra - Invernadero A">
+                    <input type="text" id="input-sim-nombre" value="Ensayo Cultivo 5 Plantas - Invernadero A">
                 </div>
                 <div class="form-group">
-                    <label for="input-sim-notas">Notas agronómicas / Hipótesis:</label>
-                    <textarea id="input-sim-notas" placeholder="Ej: Evaluación de estrés térmico con modelo de Verhulst"></textarea>
+                    <label for="input-sim-notas">Notas agronómicas:</label>
+                    <textarea id="input-sim-notas" placeholder="Ej: Evaluación de crecimiento en fila con modelo de Verhulst"></textarea>
                 </div>
                 <button id="btn-guardar-mysql" class="btn btn-primary btn-block">💾 Persistir Simulación en MySQL</button>
                 <div id="save-status-msg" style="margin-top: 6px;"></div>
             </section>
 
-            <!-- TAB 2: KPIS Y MOTOR DE DECISIONES -->
+            <!-- TAB 2: KPIS -->
             <section id="tab-kpi" class="tab-panel">
-                <h3>📊 Indicadores Biológicos (KPIs)</h3>
+                <h3>📊 Indicadores Biológicos Consolidados</h3>
                 
                 <div class="kpi-grid">
                     <div class="kpi-card">
@@ -129,19 +118,19 @@
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-value" id="kpi-altura">0.0 u</div>
-                        <div class="kpi-label">Altura Planta</div>
+                        <div class="kpi-label">Altura Promedio</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-value" id="kpi-biomasa">0.0 g</div>
-                        <div class="kpi-label">Biomasa Acumulada</div>
+                        <div class="kpi-label">Biomasa Total (5x)</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-value" id="kpi-hojas">0</div>
-                        <div class="kpi-label">Hojas Activas</div>
+                        <div class="kpi-label">Hojas Activas (5x)</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-value" id="kpi-ramas">0</div>
-                        <div class="kpi-label">Ramas Secundarias</div>
+                        <div class="kpi-label">Ramas Totales (5x)</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-value" id="kpi-icr">0.000</div>
@@ -167,31 +156,27 @@
                     <div>🌱 Nutricional: <strong id="kpi-estres-n" style="color:#ffee58;">0%</strong></div>
                 </div>
 
-                <div style="background: rgba(33,150,243,0.15); border-left: 3px solid #2196f3; padding: 7px 10px; border-radius: 6px; font-size: 0.74rem; margin-bottom: 12px;">
-                    ⏳ <strong>Pronóstico de Cosecha:</strong> <span id="kpi-cosecha">Calculando madurez...</span>
-                </div>
-
                 <h4>📈 Curva de Crecimiento en Vivo</h4>
                 <div class="chart-container">
                     <canvas id="chart-crecimiento-live"></canvas>
                 </div>
 
                 <h4>🧠 Motor de Decisiones Agronómicas</h4>
-                <div id="decisiones-container">
-                    <div class="decision-card">
-                        <div class="decision-tipo">Sistema Listo</div>
-                        <div class="decision-msg">Inicia o avanza la simulación para recibir diagnósticos agronómicos en tiempo real.</div>
-                    </div>
-                </div>
+                <div id="decisiones-container"></div>
             </section>
 
-            <!-- TAB 3: ESCENARIO A/B -->
+            <!-- TAB 3: REGISTRO "CÓMO SE SIENTEN" LAS 5 PLANTAS -->
+            <section id="tab-salud" class="tab-panel">
+                <h3>🩺 Registro Fisiológico por Planta ("Cómo se Sienten")</h3>
+                <p style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px;">
+                    Monitoreo individualizado de las 5 plantas en el surco para el <strong>Día <span id="salud-dia-val">0</span></strong>:
+                </p>
+                <div id="plantas-salud-lista" style="display:flex; flex-direction:column; gap:8px;"></div>
+            </section>
+
+            <!-- TAB 4: A/B -->
             <section id="tab-ab" class="tab-panel">
                 <h3>⚖️ Experimentación Comparativa A/B</h3>
-                <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;">
-                    Ejecuta dos escenarios agronómicos en paralelo para decidir la mejor estrategia de cultivo basada en biomasa final y estrés acumulado.
-                </p>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label for="sel-ab-specie-a">Especie Escenario A:</label>
@@ -202,190 +187,70 @@
                         <select id="sel-ab-specie-b"></select>
                     </div>
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="sel-ab-modelo-a">Modelo A:</label>
-                        <select id="sel-ab-modelo-a">
-                            <option value="logistico">Logístico</option>
-                            <option value="gompertz">Gompertz</option>
-                            <option value="exponencial">Exponencial</option>
-                            <option value="lineal">Lineal</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="sel-ab-modelo-b">Modelo B:</label>
-                        <select id="sel-ab-modelo-b">
-                            <option value="gompertz">Gompertz</option>
-                            <option value="logistico">Logístico</option>
-                            <option value="exponencial">Exponencial</option>
-                            <option value="lineal">Lineal</option>
-                        </select>
-                    </div>
+                <button id="btn-ejecutar-ab" class="btn btn-secondary btn-block">🔬 Ejecutar Test Comparativo</button>
+                <div id="ab-veredicto-card" style="margin-top:10px; padding:10px; background:rgba(20,44,30,0.85); border:1px solid #a8f060; border-radius:8px; display:none;">
+                    <h5 style="color:#a8f060; font-size:0.75rem; margin-bottom:4px;">🏆 Dictamen Agronómico</h5>
+                    <div id="ab-veredicto-texto" style="font-size:0.72rem; color:#e0f0e6; line-height:1.4;"></div>
                 </div>
-
-                <div class="ab-container">
-                    <div class="ab-panel panel-a">
-                        <h5>🌱 Escenario A (Testigo)</h5>
-                        <div class="form-group">
-                            <label>Riego: <span id="ab-val-agua-a">55%</span></label>
-                            <input type="range" id="ab-slider-agua-a" min="10" max="90" value="55">
-                        </div>
-                        <div class="form-group">
-                            <label>Temp: <span id="ab-val-temp-a">25°C</span></label>
-                            <input type="range" id="ab-slider-temp-a" min="10" max="40" value="25">
-                        </div>
-                    </div>
-
-                    <div class="ab-panel panel-b">
-                        <h5>🌾 Escenario B (Tratamiento)</h5>
-                        <div class="form-group">
-                            <label>Riego: <span id="ab-val-agua-b">35%</span></label>
-                            <input type="range" id="ab-slider-agua-b" min="10" max="90" value="35">
-                        </div>
-                        <div class="form-group">
-                            <label>Temp: <span id="ab-val-temp-b">32°C</span></label>
-                            <input type="range" id="ab-slider-temp-b" min="10" max="40" value="32">
-                        </div>
-                    </div>
-                </div>
-
-                <button id="btn-ejecutar-ab" class="btn btn-secondary btn-block" style="margin-top: 8px;">🔬 Ejecutar Comparación A/B</button>
-
-                <div id="ab-veredicto-card" style="margin-top: 10px; background: rgba(20,44,30,0.85); border: 1px solid rgba(168,240,96,0.3); border-radius: 8px; padding: 10px; display: none;">
-                    <h5 style="color:var(--accent-glow); font-size:0.75rem; margin-bottom:4px;">🏆 Dictamen Agronómico A/B</h5>
-                    <div id="ab-veredicto-texto" style="font-size:0.72rem; color:#e0f0e6; line-height: 1.45;"></div>
-                </div>
-
                 <div class="chart-container" style="margin-top: 10px; height: 180px;">
                     <canvas id="chart-ab-comparison"></canvas>
                 </div>
             </section>
 
-            <!-- TAB 4: HISTORIAL DE SIMULACIONES -->
+            <!-- TAB 5: HISTORIAL -->
             <section id="tab-historial" class="tab-panel">
                 <h3>🗄️ Historial Persistido en MySQL</h3>
-                <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;">
-                    Registros en base de datos. Haz clic en "Cargar y Reproducir" para ver la planta y su trayectoria crecer en 3D.
-                </p>
-
                 <div style="display: flex; gap: 6px; margin-bottom: 8px;">
                     <button id="btn-refrescar-historial" class="btn btn-secondary btn-sm">🔄 Recargar BD</button>
                     <button id="btn-export-csv" class="btn btn-primary btn-sm">📥 Exportar CSV</button>
                 </div>
-
-                <div id="historial-lista">
-                    <div class="loading-indicator">Consultando MySQL...</div>
-                </div>
+                <div id="historial-lista"><div class="loading-indicator">Consultando MySQL...</div></div>
             </section>
 
-            <!-- TAB 5: REPORTES Y ANALÍTICA -->
+            <!-- TAB 6: REPORTES -->
             <section id="tab-reportes" class="tab-panel">
                 <h3>📑 Inteligencia Agronómica & Reportes</h3>
-                
                 <h4>🏆 Top 5 Simulaciones por Biomasa</h4>
-                <div style="overflow-x: auto;">
-                    <table class="report-table" id="tabla-top-biomasa">
-                        <thead>
-                            <tr>
-                                <th>Simulación</th>
-                                <th>Especie</th>
-                                <th>Modelo</th>
-                                <th>Biomasa</th>
-                                <th>Altura</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td colspan="5" style="text-align:center;">Cargando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h4>⚡ Eficiencia Agronómica (g/día)</h4>
-                <div style="overflow-x: auto;">
-                    <table class="report-table" id="tabla-eficiencia">
-                        <thead>
-                            <tr>
-                                <th>Especie</th>
-                                <th>Eficiencia (g/día)</th>
-                                <th>Estrés Prom.</th>
-                                <th>Corridas</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td colspan="4" style="text-align:center;">Cargando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h4>⏳ Tiempo Promedio a Madurez</h4>
-                <div style="overflow-x: auto;">
-                    <table class="report-table" id="tabla-madurez">
-                        <thead>
-                            <tr>
-                                <th>Especie</th>
-                                <th>Días Teóricos</th>
-                                <th>Días Observados</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td colspan="3" style="text-align:center;">Cargando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="export-btn-group" style="margin-top: 10px;">
-                    <button id="btn-imprimir-reporte" class="btn btn-secondary btn-block">🖨️ Generar Reporte / Imprimir PDF</button>
-                </div>
+                <table class="report-table" id="tabla-top-biomasa">
+                    <thead><tr><th>Nombre</th><th>Especie</th><th>Modelo</th><th>Biomasa</th><th>Altura</th></tr></thead>
+                    <tbody><tr><td colspan="5" style="text-align:center;">Cargando...</td></tr></tbody>
+                </table>
+                <button id="btn-imprimir-reporte" class="btn btn-secondary btn-block" style="margin-top:10px;">🖨️ Imprimir Reporte / PDF</button>
             </section>
 
-            <!-- TAB 6: PREGUNTAS Y CUESTIONARIO ACADÉMICO -->
+            <!-- TAB 7: INFO -->
             <section id="tab-info" class="tab-panel">
                 <h3>📋 Cuestionario Práctica 05</h3>
                 <div style="font-size: 0.74rem; color: #d1e7dd; line-height: 1.45;">
                     <h4 style="color:#81c784; margin-top:6px;">1. ¿Qué aporta conectar la simulación 3D con FlightPHP y MySQL?</h4>
-                    <p>Permite pasar de una visualización puramente gráfica a un sistema bioinformático con trazabilidad, persistencia histórica, reproducibilidad de experimentos y soporte para toma de decisiones agronómicas basadas en series de tiempo.</p>
-
-                    <h4 style="color:#81c784; margin-top:8px;">2. Diferencia entre modelos de crecimiento matemático</h4>
-                    <p><strong>Lineal:</strong> Crecimiento constante sin dependencia de masa.<br>
-                    <strong>Exponencial:</strong> Crecimiento continuo sin restricciones ambientales.<br>
-                    <strong>Logístico (Verhulst):</strong> Incorpora freno por capacidad de carga $K$.<br>
-                    <strong>Gompertz:</strong> Asimetría con desaceleración progresiva, estándar biológico para modelar frutos y ramificación leñosa.</p>
-
-                    <h4 style="color:#81c784; margin-top:8px;">3. ¿Cómo influyen los índices de estrés en el 3D?</h4>
-                    <p>El estrés total reduce la tasa intrínseca $r$, lo que desacelera la escala de tallo y follaje en 3D, y cambia el material de las hojas hacia tonos cloróticos y marchitos.</p>
-
-                    <h4 style="color:#81c784; margin-top:8px;">4. Arquitectura de tres capas</h4>
-                    <p><strong>Presentación:</strong> Three.js (WebGL), Chart.js, HTML5/CSS3.<br>
-                    <strong>Lógica:</strong> GrowthEngine.js (ecuaciones diferenciales, cálculo de estrés, reglas de decisión).<br>
-                    <strong>Datos:</strong> FlightPHP REST API + MySQL 8 con PDO y transacciones batch.</p>
+                    <p>Permite pasar de un modelo meramente gráfico a un sistema bioinformático con trazabilidad histórica, reproducibilidad de experimentos y soporte para toma de decisiones agronómicas.</p>
                 </div>
             </section>
         </aside>
 
-        <!-- VISOR 3D VIEWPORT -->
+        <!-- VIEWPORT 3D -->
         <main id="viewport-container">
-            <!-- PANEL DE RAYCASTING (Al hacer clic sobre órganos vegetales 3D) -->
             <div id="info-panel" class="hidden">
                 <h2 id="info-name">Órgano Vegetal</h2>
                 <p><strong>Especie:</strong> <span id="info-especie">Plumeria Rubra</span></p>
                 <p><strong>Geometría:</strong> <span id="info-type">...</span></p>
-                <p><strong>Altura (Aprox):</strong> <span id="info-height">...</span></p>
-                <p><strong>Crecimiento:</strong> <span id="info-growth">0%</span></p>
+                <p><strong>Altura:</strong> <span id="info-height">...</span></p>
+                <p><strong>Línea de Tiempo:</strong> <span id="info-growth">Día 0</span></p>
                 <p><strong>Estrés Asociado:</strong> <span id="info-estres" style="color:#ffa726;">0%</span></p>
                 <p><strong>Biomasa Atribuida:</strong> <span id="info-biomasa" style="color:#a8f060;">0.0 g</span></p>
+                <p><strong>Cómo se Siente:</strong> <span id="info-sentimiento" style="color:#ffee58;">...</span></p>
                 <p><strong>Función Biológica:</strong> <span id="info-desc">...</span></p>
             </div>
 
-            <!-- CONTROLES INFERIORES EN VIEWPORT -->
+            <!-- CONTROLES INFERIORES / LÍNEA DE TIEMPO / JARDÍN BOTÁNICO -->
             <div id="viewport-controls">
-                <button id="btn-toggle-play">▶ Play/Pausa</button>
-                <button id="btn-restart-growth">↺ Reiniciar 3D</button>
+                <button id="btn-toggle-play">▶ Play 3D</button>
+                <button id="btn-restart-growth">↺ Día 0</button>
 
-                <!-- Scrubber interactivo de tiempo/días -->
+                <!-- SCRUBBER INTERACTIVO DE LÍNEA DE TIEMPO -->
                 <div id="timeline-scrub-box">
                     <label style="margin:0; font-size:0.68rem;">Día: <span id="timeline-day-val">0</span></label>
-                    <input type="range" id="timeline-slider" min="0" max="120" value="0" style="width:75px;">
+                    <input type="range" id="timeline-slider" min="0" max="120" value="0" style="width:130px;">
                 </div>
 
                 <button id="btn-anim">🍃 Viento: ON</button>
@@ -395,24 +260,21 @@
 
                 <span class="separator">|</span>
 
-                <label for="growth-speed-slider">
-                    Vel:
-                    <input type="range" id="growth-speed-slider" min="0.1" max="4" step="0.1" value="1.0">
-                </label>
-                <label for="light-slider">
-                    Sol:
-                    <input type="range" id="light-slider" min="0" max="2" step="0.1" value="1.1">
-                </label>
+                <button id="btn-jardin">🌳 Jardín Botánico: ON</button>
+                <button id="btn-cam-jardin">🎥 Modo Paseo Jardín</button>
+
+                <span class="separator">|</span>
+
+                <label for="growth-speed-slider">Vel: <input type="range" id="growth-speed-slider" min="0.1" max="4" step="0.1" value="1.0" style="width:45px;"></label>
+                <label for="light-slider">Sol: <input type="range" id="light-slider" min="0" max="2" step="0.1" value="1.1" style="width:45px;"></label>
             </div>
 
-            <!-- CRÉDITOS BOTÁNICOS -->
             <div id="creditos">
                 Práctica 05: Persistencia & Bioinformática 3D · Humberto Josué Orozco Espinosa & Irlanda Goreti Álvarez Lomeli
             </div>
         </main>
     </div>
 
-    <!-- SCRIPTS MODULARES -->
     <script type="importmap">
         {
             "imports": {
