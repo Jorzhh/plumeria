@@ -1,0 +1,7 @@
+# Dependencias y temporales
+api/vendor/
+api/composer.phar
+api/composer.lock
+.vscode/
+.idea/
+*.log
