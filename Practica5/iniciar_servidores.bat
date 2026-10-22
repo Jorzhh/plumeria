@@ -1,41 +1,57 @@
 @echo off
-chcp 65001 > nul
-title Laboratorio Bioinformático de Cultivo - Práctica 05
-echo ============================================================
-echo   LABORATORIO BIOINFORMÁTICO DE CULTIVO (PRÁCTICA 05)
-echo   Three.js + FlightPHP REST API + MySQL 8 + Chart.js
-echo ============================================================
+setlocal
+title BioLab 3D - Practica 05
+
+set "PROJECT_DIR=%~dp0"
+set "PHP_BIN=C:\xampp\php\php.exe"
+
+if not exist "%PROJECT_DIR%public\index.html" goto project_missing
+if not exist "%PROJECT_DIR%api\index.php" goto api_missing
+if exist "%PHP_BIN%" goto php_ready
+
+where.exe php >nul 2>&1
+if errorlevel 1 goto php_missing
+set "PHP_BIN=php"
+
+:php_ready
+echo Iniciando BioLab 3D desde:
+echo %PROJECT_DIR%
 echo.
+echo Iniciando API PHP para la red local en el puerto 8080 ...
+start "BioLab API REST - puerto 8080" /min "%PHP_BIN%" -S 0.0.0.0:8080 -t "%PROJECT_DIR%api" "%PROJECT_DIR%api\index.php"
 
-:: 1. Verificar PHP en XAMPP o PATH
-set PHP_BIN=C:\xampp\php\php.exe
-if not exist "%PHP_BIN%" (
-    where php >nul 2>&1
-    if %errorlevel% equ 0 (
-        set PHP_BIN=php
-    ) else (
-        echo [ERROR] No se encontró PHP en C:\xampp\php\php.exe ni en el PATH.
-        echo Por favor instala XAMPP o PHP 8+.
-        pause
-        exit /b 1
-    )
-)
+echo Iniciando sitio web para la red local en el puerto 3000 ...
+start "BioLab Frontend - puerto 3000" /min "%PHP_BIN%" -S 0.0.0.0:3000 -t "%PROJECT_DIR%public"
 
-echo [1/3] Iniciando API REST FlightPHP en http://localhost:8080 ...
-start "BioLab API REST (Puerto 8080)" /min "%PHP_BIN%" -S localhost:8080 -t "%~dp0api" "%~dp0api\index.php"
-
-echo [2/3] Iniciando Servidor Frontend en http://localhost:3000 ...
-start "BioLab Frontend (Puerto 3000)" /min "%PHP_BIN%" -S localhost:3000 -t "%~dp0public"
-
-echo [3/3] Abriendo navegador web...
-timeout /t 2 > nul
-start http://localhost:3000
+echo Esperando a los servidores...
+timeout /t 3 /nobreak >nul
+start "" "http://localhost:3000"
 
 echo.
-echo ============================================================
-echo   ✓ SERVIDORES EN EJECUCIÓN
-echo   • Frontend:  http://localhost:3000
-echo   • API REST:  http://localhost:8080/api/especies
-echo ============================================================
-echo Presiona cualquier tecla para cerrar esta ventana...
-pause > nul
+echo El proyecto debe abrirse en http://localhost:3000
+echo Para otro equipo de la misma red, usa http://IP-DE-ESTA-PC:3000
+echo No abras public\index.html directamente como archivo.
+echo Si el navegador no abre, copia esa direccion y pegala manualmente.
+echo.
+pause
+exit /b 0
+
+:php_missing
+echo [ERROR] No se encontro PHP.
+echo Busca php.exe en C:\xampp\php o agrega PHP al PATH de Windows.
+pause
+exit /b 1
+
+:project_missing
+echo [ERROR] No se encontro public\index.html en:
+echo %PROJECT_DIR%
+echo Ejecuta este archivo desde la carpeta raiz de Practica 5.
+pause
+exit /b 1
+
+:api_missing
+echo [ERROR] No se encontro api\index.php en:
+echo %PROJECT_DIR%
+echo Verifica que la carpeta del proyecto este completa.
+pause
+exit /b 1

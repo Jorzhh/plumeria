@@ -176,6 +176,21 @@
                     <canvas id="chart-crecimiento-live"></canvas>
                 </div>
 
+                <article id="growth-model-explanation" class="growth-model-explanation" aria-live="polite">
+                    <div class="growth-model-heading">
+                        <div>
+                            <span class="model-eyebrow">MODELO ACTIVO</span>
+                            <h4 id="model-explanation-title">Logístico de Verhulst</h4>
+                        </div>
+                        <code id="model-explanation-equation">dN/dt = rN (1 − N/K)</code>
+                    </div>
+                    <p id="model-explanation-text">Describe un crecimiento sigmoide: acelera al inicio y se frena cuando se acerca a la capacidad de carga K.</p>
+                    <div class="model-explanation-meta">
+                        <span id="model-explanation-use">Uso: crecimiento con recursos limitados.</span>
+                        <span>Parámetros: <strong id="model-explanation-params">r = 0.12 · K = 150</strong></span>
+                    </div>
+                </article>
+
                 <h4>🧠 Motor de Decisiones Agronómicas</h4>
                 <div id="decisiones-container">
                     <div class="decision-card">
@@ -377,6 +392,52 @@
                 <p><strong>Función Biológica:</strong> <span id="info-desc">...</span></p>
             </div>
 
+            <!-- BITÁCORA DIARIA DEL CULTIVO -->
+            <section id="daily-timeline-panel" aria-label="Línea del tiempo diaria del cultivo">
+                <div class="daily-timeline-heading">
+                    <div>
+                        <span class="daily-eyebrow">BITÁCORA DEL CULTIVO</span>
+                        <h2>🗓️ Línea del tiempo agronómica</h2>
+                    </div>
+                    <div class="plant-health-badge" id="daily-health-badge">
+                        <span id="daily-health-value">100%</span>
+                        <small id="daily-health-label">Vigor saludable</small>
+                    </div>
+                </div>
+
+                <div class="daily-weather-summary">
+                    <div class="daily-weather-title">
+                        <span id="daily-weather-icon" aria-hidden="true">☀️</span>
+                        <div>
+                            <strong id="daily-weather-name">Preparando el cultivo</strong>
+                            <small id="daily-event-summary">Avanza la simulación para registrar el clima y los eventos.</small>
+                        </div>
+                    </div>
+                    <div class="daily-weather-metrics">
+                        <span>🌡️ <b id="daily-temp">--</b> °C</span>
+                        <span>💧 <b id="daily-water">--</b>% sustrato</span>
+                        <span>☀️ <b id="daily-light">--</b> radiación</span>
+                        <span>🍃 <b id="daily-leaves">--</b> hojas</span>
+                    </div>
+                    <div class="daily-health-track" aria-label="Vigor de la planta">
+                        <span id="daily-health-bar"></span>
+                    </div>
+                </div>
+
+                <div class="agronomic-timeline" aria-label="Etapas estimadas del ciclo del cultivo">
+                    <div class="agronomic-timeline-meta">
+                        <strong>🧭 Etapas del ciclo</strong>
+                        <span id="agro-cycle-summary">Día 0 de 120</span>
+                    </div>
+                    <div class="agronomic-track" id="agronomic-track">
+                        <span class="agronomic-track-fill" id="agronomic-track-fill"></span>
+                        <div class="agronomic-milestones" id="agronomic-milestones"></div>
+                    </div>
+                </div>
+
+                <div id="daily-timeline-list" class="daily-timeline-list" aria-label="Días simulados"></div>
+            </section>
+
             <!-- CONTROLES INFERIORES EN VIEWPORT -->
             <div id="viewport-controls">
                 <button id="btn-toggle-play">▶ Play/Pausa</button>
@@ -424,5 +485,16 @@
     <script src="js/api-client.js"></script>
     <script src="js/growth-engine.js"></script>
     <script type="module" src="js/main.js"></script>
+    <div id="file-protocol-warning" role="alert" hidden>
+        Para cargar la vista 3D y el catálogo, ejecuta <strong>iniciar_servidores.bat</strong> desde la raíz de Practica 5 y abre
+        <strong>http://localhost:3000</strong>. No abras este HTML directamente como archivo.
+    </div>
+    <script>
+        if (window.location.protocol === 'file:') {
+            document.getElementById('file-protocol-warning').hidden = false;
+            const apiStatus = document.getElementById('api-status-text');
+            if (apiStatus) apiStatus.textContent = 'Abierto como archivo; ejecuta iniciar_servidores.bat';
+        }
+    </script>
 </body>
 </html>

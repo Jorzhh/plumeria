@@ -517,6 +517,70 @@ body {
     height: 100% !important;
 }
 
+.growth-model-explanation {
+    margin: -4px 0 14px;
+    padding: 11px 12px;
+    background: linear-gradient(135deg, rgba(19, 48, 32, 0.94), rgba(11, 29, 23, 0.94));
+    border: 1px solid rgba(41, 182, 246, 0.3);
+    border-left: 3px solid var(--accent-blue);
+    border-radius: 8px;
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.22);
+}
+
+.growth-model-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 7px;
+}
+
+.growth-model-heading h4 {
+    margin: 2px 0 0;
+    color: #90caf9;
+    font-size: 0.8rem;
+}
+
+.model-eyebrow {
+    color: var(--text-muted);
+    font-size: 0.54rem;
+    font-weight: 800;
+    letter-spacing: 0.9px;
+}
+
+#model-explanation-equation {
+    flex-shrink: 1;
+    max-width: 58%;
+    padding: 4px 6px;
+    color: #b3e5fc;
+    background: rgba(3, 16, 22, 0.62);
+    border: 1px solid rgba(41, 182, 246, 0.18);
+    border-radius: 5px;
+    font-size: 0.61rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: right;
+}
+
+#model-explanation-text {
+    color: #d7e6dc;
+    font-size: 0.68rem;
+    line-height: 1.45;
+}
+
+.model-explanation-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 5px 12px;
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    line-height: 1.35;
+}
+
+.model-explanation-meta strong { color: var(--accent-glow); }
+
 /* ============================================================
    ESCENARIO A/B
    ============================================================ */
@@ -610,6 +674,366 @@ body {
 #info-growth { color: var(--accent-yellow); font-weight: bold; }
 
 /* ============================================================
+   BITÁCORA DIARIA DEL CULTIVO
+   ============================================================ */
+#daily-timeline-panel {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 78px;
+    height: 246px;
+    padding: 10px 12px 8px;
+    display: grid;
+    grid-template-rows: auto auto 50px minmax(0, 1fr);
+    gap: 6px;
+    color: var(--text-primary);
+    background: rgba(8, 20, 12, 0.91);
+    border: 1px solid rgba(168, 240, 96, 0.24);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(12px);
+    z-index: 13;
+}
+
+.daily-timeline-heading,
+.daily-weather-summary,
+.daily-weather-title,
+.daily-weather-metrics {
+    display: flex;
+    align-items: center;
+}
+
+.daily-timeline-heading {
+    justify-content: space-between;
+    min-height: 28px;
+}
+
+.daily-eyebrow {
+    display: block;
+    color: var(--accent-glow);
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 1.1px;
+    line-height: 1.1;
+}
+
+.daily-timeline-heading h2 {
+    margin-top: 2px;
+    font-size: 0.88rem;
+    line-height: 1.15;
+}
+
+.plant-health-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 9px;
+    color: var(--accent-glow);
+    background: rgba(76, 175, 80, 0.14);
+    border: 1px solid rgba(168, 240, 96, 0.25);
+    border-radius: 20px;
+}
+
+.plant-health-badge.is-stressed {
+    color: var(--accent-orange);
+    background: rgba(255, 167, 38, 0.12);
+    border-color: rgba(255, 167, 38, 0.35);
+}
+
+.plant-health-badge.is-critical {
+    color: #ff8a80;
+    background: rgba(239, 83, 80, 0.14);
+    border-color: rgba(239, 83, 80, 0.38);
+}
+
+#daily-health-value {
+    font-size: 0.8rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.plant-health-badge small {
+    color: currentColor;
+    font-size: 0.59rem;
+}
+
+.daily-weather-summary {
+    position: relative;
+    min-height: 48px;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 6px 9px 9px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+}
+
+.daily-weather-title {
+    min-width: 190px;
+    gap: 9px;
+}
+
+#daily-weather-icon {
+    font-size: 1.45rem;
+    line-height: 1;
+}
+
+.daily-weather-title strong,
+.daily-weather-title small {
+    display: block;
+}
+
+.daily-weather-title strong {
+    font-size: 0.73rem;
+}
+
+.daily-weather-title small {
+    max-width: 290px;
+    overflow: hidden;
+    margin-top: 2px;
+    color: var(--text-muted);
+    font-size: 0.61rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.daily-weather-metrics {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 5px 14px;
+    color: #c8d8cb;
+    font-size: 0.63rem;
+}
+
+.daily-weather-metrics b {
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+
+.daily-health-track {
+    position: absolute;
+    right: 9px;
+    bottom: 4px;
+    left: 9px;
+    height: 2px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+}
+
+.agronomic-timeline {
+    min-width: 0;
+    padding: 0 2px;
+}
+
+.agronomic-timeline-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    color: #d6e5d8;
+    font-size: 0.6rem;
+}
+
+.agronomic-timeline-meta strong { color: var(--accent-glow); }
+.agronomic-timeline-meta span { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+.agronomic-track {
+    position: relative;
+    height: 34px;
+    margin: 2px 8px 0;
+}
+
+.agronomic-track::before,
+.agronomic-track-fill {
+    position: absolute;
+    top: 6px;
+    left: 0;
+    height: 3px;
+    border-radius: 4px;
+}
+
+.agronomic-track::before {
+    right: 0;
+    content: '';
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.agronomic-track-fill {
+    z-index: 1;
+    display: block;
+    max-width: 100%;
+    background: linear-gradient(90deg, #43a047, #a8f060);
+    box-shadow: 0 0 8px rgba(168, 240, 96, 0.32);
+    transition: width 0.2s ease;
+}
+
+.agronomic-milestones { position: absolute; inset: 0; }
+
+.agro-milestone {
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    width: 108px;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 0;
+    color: var(--text-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+    transform: translateX(-50%);
+}
+
+.agro-milestone.at-start { align-items: flex-start; transform: translateX(0); }
+.agro-milestone.at-end { align-items: flex-end; transform: translateX(-100%); }
+
+.agro-milestone-dot {
+    display: grid;
+    width: 15px;
+    height: 15px;
+    place-items: center;
+    color: #d4e5d2;
+    background: #253a2a;
+    border: 2px solid #718074;
+    border-radius: 50%;
+    font-size: 0.48rem;
+    line-height: 1;
+    transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+}
+
+.agro-milestone.is-complete .agro-milestone-dot {
+    background: #2e7d32;
+    border-color: var(--accent-glow);
+}
+
+.agro-milestone.is-current .agro-milestone-dot {
+    transform: scale(1.18);
+    box-shadow: 0 0 9px rgba(168, 240, 96, 0.45);
+}
+
+.agro-milestone-label {
+    display: flex;
+    flex-direction: column;
+    max-width: 108px;
+    line-height: 1.15;
+    text-align: center;
+}
+
+.at-start .agro-milestone-label { text-align: left; }
+.at-end .agro-milestone-label { text-align: right; }
+.agro-milestone-label strong { color: #dce8dc; font-size: 0.55rem; }
+.agro-milestone-label small { font-size: 0.5rem; }
+.agro-milestone:hover .agro-milestone-label strong { color: var(--accent-glow); }
+
+.agro-event-marker {
+    position: absolute;
+    top: 1px;
+    z-index: 3;
+    display: grid;
+    width: 15px;
+    height: 15px;
+    place-items: center;
+    padding: 0;
+    color: #ffe0a3;
+    background: #654819;
+    border: 1px solid #ffcf75;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.52rem;
+    line-height: 1;
+    transform: translateX(-50%);
+}
+
+.agro-event-marker.is-past { filter: saturate(0.72); }
+
+#daily-health-bar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--accent-glow);
+    transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.daily-timeline-list {
+    display: flex;
+    min-width: 0;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1px 1px 4px;
+    scrollbar-color: rgba(168, 240, 96, 0.4) transparent;
+    scrollbar-width: thin;
+}
+
+.daily-day-card {
+    display: flex;
+    flex: 0 0 138px;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 72px;
+    padding: 6px 8px;
+    color: var(--text-primary);
+    text-align: left;
+    background: rgba(21, 43, 28, 0.74);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 7px;
+    cursor: pointer;
+    font: inherit;
+    transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+}
+
+.daily-day-card:hover {
+    background: rgba(46, 90, 53, 0.8);
+    border-color: rgba(168, 240, 96, 0.4);
+    transform: translateY(-1px);
+}
+
+.daily-day-card.is-selected {
+    background: rgba(51, 101, 56, 0.72);
+    border-color: var(--accent-glow);
+    box-shadow: inset 0 0 0 1px rgba(168, 240, 96, 0.12);
+}
+
+.daily-day-top {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-muted);
+    font-size: 0.54rem;
+    font-weight: 800;
+    letter-spacing: 0.45px;
+}
+
+.daily-day-top .day-health {
+    color: var(--accent-glow);
+    letter-spacing: 0;
+}
+
+.daily-day-card.is-stressed .day-health { color: var(--accent-orange); }
+.daily-day-card.is-critical .day-health { color: #ff8a80; }
+
+.daily-day-card strong {
+    overflow: hidden;
+    font-size: 0.65rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.daily-day-card small,
+.daily-day-event {
+    overflow: hidden;
+    color: #b4c3b7;
+    font-size: 0.56rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.daily-day-event.has-event { color: #ffd180; }
+
+/* ============================================================
    BARRA DE CONTROLES INFERIOR EN EL VIEWPORT
    ============================================================ */
 #viewport-controls {
@@ -696,7 +1120,7 @@ body {
    ============================================================ */
 #creditos {
     position: absolute;
-    bottom: 58px;
+    bottom: 338px;
     right: 14px;
     color: rgba(255, 255, 255, 0.85);
     font-size: 0.66rem;
@@ -736,6 +1160,29 @@ body {
     to { transform: rotate(360deg); }
 }
 
+@media (max-height: 760px) {
+    #daily-timeline-panel {
+        bottom: 70px;
+        height: 218px;
+        gap: 4px;
+        padding-top: 7px;
+    }
+
+    .daily-weather-summary { min-height: 42px; }
+    .daily-day-card { min-height: 66px; }
+    #creditos { bottom: 302px; }
+}
+
+@media (max-width: 900px) {
+    #daily-timeline-panel { left: 8px; right: 8px; }
+    .daily-weather-summary { gap: 8px; }
+    .daily-weather-title { min-width: 150px; }
+    .daily-weather-metrics { gap: 4px 8px; font-size: 0.58rem; }
+    .daily-day-card { flex-basis: 124px; }
+    .agro-milestone { width: 94px; }
+    .agro-milestone-label { max-width: 94px; }
+}
+
 .status-msg {
     padding: 7px 10px;
     border-radius: 6px;
@@ -752,4 +1199,21 @@ body {
     background: rgba(198, 40, 40, 0.25);
     color: #ef9a9a;
     border: 1px solid rgba(198, 40, 40, 0.4);
+}
+
+#file-protocol-warning:not([hidden]) {
+    position: fixed;
+    z-index: 10000;
+    top: 16px;
+    left: 50%;
+    width: min(720px, calc(100vw - 32px));
+    transform: translateX(-50%);
+    padding: 14px 18px;
+    border: 1px solid #a8f060;
+    border-radius: 10px;
+    background: #10271b;
+    color: #e9f5e9;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+    font-size: 0.9rem;
+    line-height: 1.5;
 }

@@ -142,14 +142,15 @@ mysql -u root < database/seed.sql
 ```
 
 ### Paso 2: Iniciar Servidores con 1 Clic (Windows)
-Haz doble clic sobre el archivo:
+Desde la carpeta raíz del repositorio, haz doble clic sobre:
 ```text
 iniciar_servidores.bat
 ```
-Este script iniciará automáticamente:
-1. La API REST en PHP: `http://localhost:8080`
-2. El servidor web de la aplicación: `http://localhost:3000`
-3. Tu navegador web listo para interactuar.
+El script busca PHP en `C:\xampp\php\php.exe` o en el `PATH`, inicia la API REST y el sitio web desde esta misma copia del repositorio, y abre `http://localhost:3000` en el navegador. Deja abiertas las ventanas de los servidores mientras uses la aplicación.
+
+**Importante:** no abras `public/index.html` con doble clic (dirección `file:///...`). La aplicación usa módulos JavaScript y una API local; necesita abrirse por `http://localhost:3000`. Apache y MySQL de XAMPP pueden estar activos, pero para este lanzador la API y el frontend se sirven con PHP en los puertos 8080 y 3000.
+
+Si Apache abre directamente la carpeta raíz de `Practica 5` desde `htdocs`, el archivo `index.php` de esa raíz envía al navegador a `public/` automáticamente.
 
 *(Alternativa manual desde terminal:)*
 ```bash

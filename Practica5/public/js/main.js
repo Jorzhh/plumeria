@@ -11,7 +11,7 @@ scene.background = skyColor;
 scene.fog = new THREE.FogExp2(0x7bc6eb, 0.022);
 
 const camera = new THREE.PerspectiveCamera(52, container.clientWidth / container.clientHeight, 0.1, 1000);
-camera.position.set(0, 4.5, 10.5);
+camera.position.set(0, 5.1, 14);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -25,7 +25,7 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.target.set(0, 2.3, 0);
+controls.target.set(0, 2.1, 0);
 controls.maxPolarAngle = Math.PI / 2 - 0.02; // No traspasar suelo
 
 // ============================================================
@@ -61,24 +61,24 @@ piso.receiveShadow = true;
 scene.add(piso);
 
 // Camino de Adoquín / Piedra
-const caminoGeo = new THREE.PlaneGeometry(5.5, 70);
+const caminoGeo = new THREE.PlaneGeometry(4.5, 70);
 const caminoMat = new THREE.MeshStandardMaterial({ color: 0x828882, roughness: 0.95 });
 const camino = new THREE.Mesh(caminoGeo, caminoMat);
 camino.rotation.x = -Math.PI / 2;
-camino.position.set(5.5, 0.015, 0);
+camino.position.set(10, 0.015, 0);
 camino.receiveShadow = true;
 scene.add(camino);
 
 // Árboles de fondo
 function crearArbolFondo(x, z, escala = 1) {
     const arbol = new THREE.Group();
-    const tronco = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.85, 4.0, 12), new THREE.MeshStandardMaterial({ color: 0x3d2716, roughness: 0.9 }));
-    tronco.position.y = 2.0;
+    const tronco = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.36, 2.8, 12), new THREE.MeshStandardMaterial({ color: 0x3d2716, roughness: 0.9 }));
+    tronco.position.y = 1.4;
     tronco.castShadow = true;
     arbol.add(tronco);
 
-    const copa = new THREE.Mesh(new THREE.SphereGeometry(3.4, 16, 16), new THREE.MeshStandardMaterial({ color: 0x1f4724, roughness: 0.85 }));
-    copa.position.y = 5.2;
+    const copa = new THREE.Mesh(new THREE.SphereGeometry(1.7, 16, 16), new THREE.MeshStandardMaterial({ color: 0x1f4724, roughness: 0.85 }));
+    copa.position.y = 3.4;
     copa.castShadow = true;
     arbol.add(copa);
 
@@ -86,12 +86,347 @@ function crearArbolFondo(x, z, escala = 1) {
     arbol.scale.set(escala, escala, escala);
     scene.add(arbol);
 }
-crearArbolFondo(-10, -8, 1.8);
-crearArbolFondo(12, -9, 2.1);
-crearArbolFondo(-12, 6, 1.6);
-crearArbolFondo(12, 13, 1.7);
-crearArbolFondo(-6, 14, 1.9);
-crearArbolFondo(6, -15, 2.0);
+crearArbolFondo(-12, -15, 1.05);
+crearArbolFondo(-7, -17, 0.9);
+crearArbolFondo(0, -18, 1.05);
+crearArbolFondo(7, -17, 0.9);
+crearArbolFondo(12, -15, 1.05);
+
+// Más árboles de fondo para que el jardín tenga profundidad y variedad visual.
+crearArbolFondo(-17, -19, 0.78);
+crearArbolFondo(17, -19, 0.82);
+crearArbolFondo(-16, -8, 0.68);
+crearArbolFondo(17, -8, 0.72);
+
+// Bosque ornamental amplio al fondo y en los laterales del jardín.
+const arbolesBosque = [];
+for (let i = -7; i <= 7; i++) {
+    arbolesBosque.push({ x: i * 3.0, z: -21, escala: 0.78 + ((i + 7) % 4) * 0.09 });
+    arbolesBosque.push({ x: i * 3.05 + 1.4, z: -28, escala: 0.72 + ((i + 9) % 5) * 0.08 });
+}
+for (let i = 0; i < 9; i++) {
+    const z = -12 + i * 3.15;
+    arbolesBosque.push({ x: -17.5, z, escala: 0.62 + (i % 3) * 0.1 });
+    arbolesBosque.push({ x: 18, z: z - 1.1, escala: 0.64 + ((i + 1) % 3) * 0.1 });
+}
+
+const troncosBosque = new THREE.InstancedMesh(
+    new THREE.CylinderGeometry(0.14, 0.23, 2.5, 7),
+    new THREE.MeshStandardMaterial({ color: 0x49321f, roughness: 0.92 }),
+    arbolesBosque.length
+);
+const copasBosque = new THREE.InstancedMesh(
+    new THREE.IcosahedronGeometry(1, 1),
+    new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.88 }),
+    arbolesBosque.length * 4
+);
+const arbolDummy = new THREE.Object3D();
+const tonosCopaBosque = [0x1e5132, 0x28663c, 0x367746, 0x315c36, 0x477a43];
+arbolesBosque.forEach((arbol, arbolIndex) => {
+    arbolDummy.position.set(arbol.x, 1.03 * arbol.escala, arbol.z);
+    arbolDummy.scale.set(arbol.escala, 0.83 * arbol.escala, arbol.escala);
+    arbolDummy.rotation.set(0, arbolIndex * 0.37, 0);
+    arbolDummy.updateMatrix();
+    troncosBosque.setMatrixAt(arbolIndex, arbolDummy.matrix);
+
+    const copas = [
+        [0, 2.55, 0, 1.08, 1.25, 1.08],
+        [-0.62, 2.35, 0.12, 0.78, 0.92, 0.8],
+        [0.58, 2.38, -0.08, 0.8, 0.9, 0.82],
+        [0.03, 2.42, 0.58, 0.8, 0.92, 0.78]
+    ];
+    copas.forEach(([dx, dy, dz, sx, sy, sz], copaIndex) => {
+        arbolDummy.position.set(
+            arbol.x + dx * arbol.escala,
+            dy * arbol.escala,
+            arbol.z + dz * arbol.escala
+        );
+        arbolDummy.scale.set(sx * arbol.escala, sy * arbol.escala, sz * arbol.escala);
+        arbolDummy.rotation.set(0.04 * copaIndex, arbolIndex * 0.19 + copaIndex, 0);
+        arbolDummy.updateMatrix();
+        const instanciaCopa = arbolIndex * 4 + copaIndex;
+        copasBosque.setMatrixAt(instanciaCopa, arbolDummy.matrix);
+        copasBosque.setColorAt(instanciaCopa, new THREE.Color(tonosCopaBosque[(arbolIndex + copaIndex) % tonosCopaBosque.length]));
+    });
+});
+troncosBosque.name = 'troncos-ornamentales';
+copasBosque.name = 'copas-ornamentales';
+troncosBosque.instanceMatrix.needsUpdate = true;
+copasBosque.instanceMatrix.needsUpdate = true;
+if (copasBosque.instanceColor) copasBosque.instanceColor.needsUpdate = true;
+scene.add(troncosBosque, copasBosque);
+
+// Flora ornamental del jardín botánico. Está separada de plantInstances y de
+// growableParts: no participa en la simulación, el raycasting ni los reportes.
+const camasOrnamentales = [
+    { x: -8.45, z: -5.2, sx: 1.25, sz: 1.4 },
+    { x: -8.45, z: 0.2, sx: 1.25, sz: 1.45 },
+    { x: -8.45, z: 5.6, sx: 1.25, sz: 1.45 },
+    { x: 7.1, z: -5.2, sx: 0.35, sz: 1.35 },
+    { x: 7.1, z: 5.6, sx: 0.35, sz: 1.35 },
+    { x: 13.85, z: -5.2, sx: 1.3, sz: 1.4 },
+    { x: 13.85, z: 0.2, sx: 1.3, sz: 1.45 },
+    { x: 13.85, z: 5.6, sx: 1.3, sz: 1.45 }
+];
+
+const formaCama = new THREE.Shape();
+formaCama.moveTo(-0.82, -1);
+formaCama.lineTo(0.82, -1);
+formaCama.quadraticCurveTo(1, -1, 1, -0.82);
+formaCama.lineTo(1, 0.82);
+formaCama.quadraticCurveTo(1, 1, 0.82, 1);
+formaCama.lineTo(-0.82, 1);
+formaCama.quadraticCurveTo(-1, 1, -1, 0.82);
+formaCama.lineTo(-1, -0.82);
+formaCama.quadraticCurveTo(-1, -1, -0.82, -1);
+
+const camaGeometry = new THREE.ShapeGeometry(formaCama, 8);
+camaGeometry.rotateX(-Math.PI / 2);
+const camaMaterial = new THREE.MeshStandardMaterial({ color: 0x493b2b, roughness: 1 });
+camasOrnamentales.forEach(cama => {
+    const sueloCama = new THREE.Mesh(camaGeometry, camaMaterial);
+    sueloCama.position.set(cama.x, 0.025, cama.z);
+    sueloCama.scale.set(cama.sx, 1, cama.sz);
+    sueloCama.receiveShadow = true;
+    scene.add(sueloCama);
+});
+
+// Conecta los parterres laterales y el fondo para que el jardín no quede en islas.
+[
+    { x: -7.35, z: 0, sx: 0.45, sz: 13 },
+    { x: 7.35, z: 0, sx: 0.4, sz: 13 },
+    { x: -9.35, z: 0, sx: 0.42, sz: 13 },
+    { x: 13.65, z: 0, sx: 0.45, sz: 13 },
+    { x: 0, z: -5.2, sx: 7.6, sz: 0.42 },
+    { x: 0, z: -9.8, sx: 13.5, sz: 0.38 }
+].forEach(cama => {
+    const franja = new THREE.Mesh(camaGeometry, camaMaterial);
+    franja.position.set(cama.x, 0.028, cama.z);
+    franja.scale.set(cama.sx, 1, cama.sz);
+    franja.receiveShadow = true;
+    scene.add(franja);
+});
+
+// Arbustos bajos en grupos de follaje, instanciados para mantener buen rendimiento.
+const gruposArbustos = [
+    [-8.55, -5.3, 0.9], [-7.75, -5.0, 0.72], [-9.05, -4.7, 0.68],
+    [-8.55, 0.0, 1.0], [-7.8, 0.35, 0.72], [-9.1, 0.45, 0.72],
+    [-8.55, 5.5, 0.92], [-7.8, 5.2, 0.7], [-9.05, 5.85, 0.68],
+    [7.1, -5.25, 0.46], [7.1, 5.55, 0.46],
+    [13.85, -5.3, 0.92], [13.05, -5.0, 0.72], [14.65, -4.75, 0.7],
+    [13.85, 0.0, 0.98], [13.05, 0.3, 0.7], [14.65, 0.45, 0.72],
+    [13.85, 5.5, 0.92], [13.05, 5.2, 0.72], [14.65, 5.85, 0.68],
+    [-15.2, -13.4, 0.9], [-10.1, -21, 0.82], [10.6, -21.2, 0.82], [15.4, -13.2, 0.88]
+];
+// Hileras tupidas a los costados y detrás de la colección principal.
+for (let i = 0, z = -12.5; z <= 21.5; i++, z += 1.02) {
+    const escala = 0.7 + (i % 4) * 0.045;
+    gruposArbustos.push(
+        [-7.35, z, escala], [7.35, z, escala * 0.96],
+        [-9.35, z + 0.36, escala * 0.88], [13.65, z + 0.36, escala * 0.9]
+    );
+}
+for (let i = 0, x = -7.2; x <= 7.2; i++, x += 1.02) {
+    gruposArbustos.push([x, -5.2, 0.72 + (i % 3) * 0.04]);
+}
+for (let i = 0, x = -13; x <= 13; i++, x += 1.4) {
+    gruposArbustos.push([x, -9.8, 0.72 + (i % 4) * 0.035]);
+}
+const formasFollaje = [
+    [0, 0.56, 0, 0.78, 0.57, 0.7],
+    [-0.39, 0.43, 0.04, 0.6, 0.46, 0.56],
+    [0.39, 0.43, -0.04, 0.6, 0.46, 0.56],
+    [0.02, 0.42, 0.38, 0.58, 0.43, 0.55],
+    [-0.02, 0.42, -0.38, 0.58, 0.43, 0.55]
+];
+const tonosArbusto = [0x28633b, 0x347849, 0x3f8249, 0x285a36, 0x4a874a];
+const arbustoGeo = new THREE.IcosahedronGeometry(0.58, 1);
+const arbustoMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
+const arbustosMesh = new THREE.InstancedMesh(arbustoGeo, arbustoMat, gruposArbustos.length * formasFollaje.length);
+const arbustoDummy = new THREE.Object3D();
+let indiceArbusto = 0;
+gruposArbustos.forEach(([x, z, escala], grupoIndex) => {
+    formasFollaje.forEach(([dx, dy, dz, sx, sy, sz], follajeIndex) => {
+        arbustoDummy.position.set(x + dx * escala, dy * escala, z + dz * escala);
+        arbustoDummy.scale.set(sx * escala, sy * escala, sz * escala);
+        arbustoDummy.rotation.set(0.03 * follajeIndex, 0.7 * grupoIndex + follajeIndex, 0.02 * grupoIndex);
+        arbustoDummy.updateMatrix();
+        arbustosMesh.setMatrixAt(indiceArbusto, arbustoDummy.matrix);
+        arbustosMesh.setColorAt(indiceArbusto, new THREE.Color(tonosArbusto[(grupoIndex + follajeIndex) % tonosArbusto.length]));
+        indiceArbusto++;
+    });
+});
+arbustosMesh.name = 'arbustos-ornamentales';
+arbustosMesh.instanceMatrix.needsUpdate = true;
+if (arbustosMesh.instanceColor) arbustosMesh.instanceColor.needsUpdate = true;
+scene.add(arbustosMesh);
+
+// Cubresuelo ornamental: rellena el terreno con vegetación baja y deja libre
+// la parcela experimental y el sendero para conservar despejada la escena.
+function variacionVisual(semilla) {
+    const valor = Math.sin(semilla * 127.1 + 311.7) * 43758.5453;
+    return valor - Math.floor(valor);
+}
+
+const celdasCubresuelo = [];
+let semillaCubresuelo = 1;
+for (let z = -24; z <= 24; z += 1.65) {
+    for (let x = -28; x <= 28; x += 1.65) {
+        const parcelaCentral = Math.abs(x) < 7.15 && z > -4.2 && z < 3.3;
+        const sendero = x > 7.65 && x < 12.35;
+        if (parcelaCentral || sendero) continue;
+        celdasCubresuelo.push({
+            x: x + (variacionVisual(semillaCubresuelo) - 0.5) * 0.42,
+            z: z + (variacionVisual(semillaCubresuelo + 1) - 0.5) * 0.42,
+            escala: 0.42 + variacionVisual(semillaCubresuelo + 2) * 0.2,
+            tono: Math.floor(variacionVisual(semillaCubresuelo + 3) * 5)
+        });
+        semillaCubresuelo++;
+    }
+}
+
+const formasCubresuelo = [[0, 0.2, 0, 0.95, 0.48, 0.82], [-0.34, 0.17, 0.12, 0.7, 0.4, 0.65], [0.3, 0.16, -0.16, 0.68, 0.38, 0.66]];
+const tonosCubresuelo = [0x326d3c, 0x3d7a42, 0x477f47, 0x2d6038, 0x56854a];
+const cubresueloMesh = new THREE.InstancedMesh(
+    new THREE.IcosahedronGeometry(0.52, 1),
+    new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.96 }),
+    celdasCubresuelo.length * formasCubresuelo.length
+);
+let indiceCubresuelo = 0;
+celdasCubresuelo.forEach((celda, celdaIndex) => {
+    formasCubresuelo.forEach(([dx, dy, dz, sx, sy, sz], formaIndex) => {
+        const escala = celda.escala;
+        arbustoDummy.position.set(celda.x + dx * escala, dy * escala, celda.z + dz * escala);
+        arbustoDummy.scale.set(sx * escala, sy * escala, sz * escala);
+        arbustoDummy.rotation.set(0, celdaIndex * 0.71 + formaIndex, 0);
+        arbustoDummy.updateMatrix();
+        cubresueloMesh.setMatrixAt(indiceCubresuelo, arbustoDummy.matrix);
+        cubresueloMesh.setColorAt(indiceCubresuelo, new THREE.Color(tonosCubresuelo[(celda.tono + formaIndex) % tonosCubresuelo.length]));
+        indiceCubresuelo++;
+    });
+});
+cubresueloMesh.name = 'cubresuelo-ornamental';
+cubresueloMesh.instanceMatrix.needsUpdate = true;
+if (cubresueloMesh.instanceColor) cubresueloMesh.instanceColor.needsUpdate = true;
+scene.add(cubresueloMesh);
+
+// Suculentas tipo agave que dan variedad de siluetas al borde de los parterres.
+const centrosAgave = [
+    [-9.0, -5.9, 0.68], [-9.0, 1.4, 0.72], [-9.0, 6.8, 0.62],
+    [7.1, -5.9, 0.36], [7.1, 6.8, 0.36],
+    [14.45, -5.9, 0.7], [14.45, 1.4, 0.74], [14.45, 6.8, 0.64]
+];
+for (let z = -10; z <= 18; z += 4) {
+    centrosAgave.push([-6.95, z, 0.38], [7.0, z, 0.36], [13.1, z + 1.2, 0.4]);
+}
+const hojasAgaveGeo = new THREE.ConeGeometry(0.13, 1.1, 6);
+const hojasAgaveMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55 });
+const agavesMesh = new THREE.InstancedMesh(hojasAgaveGeo, hojasAgaveMat, centrosAgave.length * 9);
+const agaveDummy = new THREE.Object3D();
+const tonosAgave = [0x638f4e, 0x78a45b, 0x4f7e4a, 0x91ad67];
+let indiceHojaAgave = 0;
+centrosAgave.forEach(([x, z, escala], agaveIndex) => {
+    for (let hojaIndex = 0; hojaIndex < 9; hojaIndex++) {
+        const angulo = (hojaIndex / 9) * Math.PI * 2 + agaveIndex * 0.31;
+        const inclinacion = 0.32 + (hojaIndex % 3) * 0.08;
+        agaveDummy.position.set(
+            x + Math.sin(angulo) * 0.17 * escala,
+            0.55 * escala,
+            z + Math.cos(angulo) * 0.17 * escala
+        );
+        agaveDummy.rotation.set(-Math.sin(angulo) * inclinacion, angulo, Math.cos(angulo) * inclinacion);
+        agaveDummy.scale.set(escala, escala * (0.9 + (hojaIndex % 2) * 0.12), escala);
+        agaveDummy.updateMatrix();
+        agavesMesh.setMatrixAt(indiceHojaAgave, agaveDummy.matrix);
+        agavesMesh.setColorAt(indiceHojaAgave, new THREE.Color(tonosAgave[(hojaIndex + agaveIndex) % tonosAgave.length]));
+        indiceHojaAgave++;
+    }
+});
+agavesMesh.name = 'agaves-ornamentales';
+agavesMesh.instanceMatrix.needsUpdate = true;
+if (agavesMesh.instanceColor) agavesMesh.instanceColor.needsUpdate = true;
+scene.add(agavesMesh);
+
+// Macizos florales de colores; son decoración estática y no forman parte del cultivo.
+const centrosMacizosFlorales = [
+    [-8.2, -5.6], [-8.5, -0.6], [-8.25, 5.1],
+    [7.05, -5.6], [7.05, 5.1],
+    [13.55, -5.6], [13.8, -0.6], [13.55, 5.1]
+];
+for (let z = -12; z <= 19; z += 1.65) {
+    centrosMacizosFlorales.push([-7.15, z], [7.15, z], [13.15, z + 0.5]);
+}
+for (let x = -6.5; x <= 6.5; x += 1.85) {
+    centrosMacizosFlorales.push([x, -5.2]);
+}
+for (let x = -12; x <= 12; x += 2.2) {
+    centrosMacizosFlorales.push([x, -9.8]);
+}
+const flores = [];
+centrosMacizosFlorales.forEach(([x, z], macizoIndex) => {
+    const cantidad = macizoIndex % 2 === 0 ? 7 : 8;
+    for (let florIndex = 0; florIndex < cantidad; florIndex++) {
+        const angulo = florIndex * 2.399 + macizoIndex * 0.63;
+        const radio = 0.18 + (florIndex % 3) * 0.13;
+        flores.push({
+            x: x + Math.cos(angulo) * radio,
+            z: z + Math.sin(angulo) * radio,
+            alto: 0.34 + (florIndex % 4) * 0.07,
+            color: (macizoIndex + florIndex) % 5
+        });
+    }
+});
+
+const tallosFlores = new THREE.InstancedMesh(
+    new THREE.CylinderGeometry(0.014, 0.022, 1, 5),
+    new THREE.MeshStandardMaterial({ color: 0x4f8543, roughness: 0.8 }),
+    flores.length
+);
+const petalosFlores = new THREE.InstancedMesh(
+    new THREE.SphereGeometry(1, 8, 6),
+    new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.45 }),
+    flores.length * 5
+);
+const centrosFlores = new THREE.InstancedMesh(
+    new THREE.SphereGeometry(0.065, 8, 6),
+    new THREE.MeshStandardMaterial({ color: 0xffd34e, roughness: 0.4 }),
+    flores.length
+);
+const florDummy = new THREE.Object3D();
+const tonosFlor = [0xe875a4, 0xf2be45, 0xa78bdb, 0xf5f0e2, 0xe9825c];
+flores.forEach((flor, florIndex) => {
+    florDummy.position.set(flor.x, flor.alto / 2, flor.z);
+    florDummy.scale.set(1, flor.alto, 1);
+    florDummy.rotation.set(0, 0, Math.cos(florIndex) * 0.06);
+    florDummy.updateMatrix();
+    tallosFlores.setMatrixAt(florIndex, florDummy.matrix);
+
+    for (let petaloIndex = 0; petaloIndex < 5; petaloIndex++) {
+        const angulo = (petaloIndex / 5) * Math.PI * 2;
+        florDummy.position.set(
+            flor.x + Math.sin(angulo) * 0.065,
+            flor.alto,
+            flor.z + Math.cos(angulo) * 0.065
+        );
+        florDummy.rotation.set(0, angulo, 0);
+        florDummy.scale.set(0.055, 0.035, 0.12);
+        florDummy.updateMatrix();
+        const instanciaPetalo = florIndex * 5 + petaloIndex;
+        petalosFlores.setMatrixAt(instanciaPetalo, florDummy.matrix);
+        petalosFlores.setColorAt(instanciaPetalo, new THREE.Color(tonosFlor[flor.color]));
+    }
+
+    florDummy.position.set(flor.x, flor.alto, flor.z);
+    florDummy.rotation.set(0, 0, 0);
+    florDummy.scale.set(1, 1, 1);
+    florDummy.updateMatrix();
+    centrosFlores.setMatrixAt(florIndex, florDummy.matrix);
+});
+tallosFlores.instanceMatrix.needsUpdate = true;
+petalosFlores.instanceMatrix.needsUpdate = true;
+centrosFlores.instanceMatrix.needsUpdate = true;
+if (petalosFlores.instanceColor) petalosFlores.instanceColor.needsUpdate = true;
+scene.add(tallosFlores, petalosFlores, centrosFlores);
 
 // Partículas atmosféricas de polen/esporas en suspensión
 const particleCount = 180;
@@ -113,6 +448,7 @@ scene.add(particleSystem);
 const interactableObjects = [];
 const arrayHojas = [];
 const growableParts = [];
+const plantInstances = [];
 
 let isWindy = true;
 let isGrowthPaused = false;
@@ -168,17 +504,17 @@ macetaGroup.add(bordeMaceta);
 const tierra = crearParteInteractiva(new THREE.CylinderGeometry(1.35, 1.35, 0.1, 32), matTierra, "Sustrato Orgánico", "Cilindro Plano", "18 cm", "Sustrato con retención de agua y N-P-K.", 0);
 tierra.position.y = 1.85;
 macetaGroup.add(tierra);
-scene.add(macetaGroup);
 
 // Grupo Jerárquico de la Planta
 const planta = new THREE.Group();
+planta.name = 'estructura-planta';
 planta.position.y = 1.85;
-scene.add(planta);
 
 // Tallo principal
 const geoTallo = new THREE.CylinderGeometry(0.18, 0.25, 3.2, 16);
 geoTallo.translate(0, 1.6, 0);
 const tallo = crearParteCrecimiento(geoTallo, matTallo, "Tallo Principal (Xilema y Floema)", "CylinderGeometry", "20 a 65 cm", "Eje vascular leñoso de soporte y conducción.", 0.0, 0.35, new THREE.Vector3(1,1,1), 40);
+tallo.name = 'tallo-principal';
 planta.add(tallo);
 
 // Creador de coronas foliares y flores de Plumeria
@@ -246,6 +582,45 @@ crearCopaPlumeria(2.4, 0.58, -0.25, 0.10, 0.95);      // Rama derecha
 crearCopaPlumeria(2.1, -0.58, 0.25, 0.18, 0.92);      // Rama izquierda
 crearCopaPlumeria(1.8, 0.15, 0.55, 0.24, 0.88);       // Rama frontal
 
+// Muestra visual en bancal: cinco plantas comparten el escenario experimental.
+const cultivoMaster = new THREE.Group();
+cultivoMaster.name = 'muestra-cultivo';
+cultivoMaster.add(macetaGroup, planta);
+
+const bancal = new THREE.Mesh(
+    new THREE.BoxGeometry(13.4, 0.16, 3.6),
+    new THREE.MeshStandardMaterial({ color: 0x343a32, roughness: 0.9 })
+);
+bancal.position.set(0, 0.08, 0);
+bancal.receiveShadow = true;
+scene.add(bancal);
+
+const posicionesCultivo = [-5.05, -2.525, 0, 2.525, 5.05];
+posicionesCultivo.forEach((posicionX, indice) => {
+    const raiz = indice === 2 ? cultivoMaster : cultivoMaster.clone(true);
+    raiz.position.set(posicionX, 0.16, 0);
+    raiz.scale.setScalar(0.56);
+
+    const hojas = [];
+    const partes = [];
+    raiz.traverse(objeto => {
+        if (!objeto.isMesh) return;
+        if (objeto.userData.name === 'Hoja de Plumeria') hojas.push(objeto);
+        if (Number.isFinite(objeto.userData.growStart)) partes.push(objeto);
+        if (indice !== 2 && objeto.userData.name) interactableObjects.push(objeto);
+    });
+
+    plantInstances.push({
+        raiz,
+        planta: raiz.getObjectByName('estructura-planta'),
+        tallo: raiz.getObjectByName('tallo-principal'),
+        hojas,
+        partes
+    });
+    if (indice !== 2) growableParts.push(...partes);
+    scene.add(raiz);
+});
+
 // ============================================================
 // 4. MOTOR BIOINFORMÁTICO Y ESTADO DE LA APLICACIÓN
 // ============================================================
@@ -256,6 +631,11 @@ let liveChart = null;
 let abChart = null;
 let isSimRunning = false;
 let simIntervalId = null;
+let dailyHistory = [];
+let maxSimulatedDay = 0;
+let plantHealth = 100;
+let leavesVisible = true;
+let manualLightSetting = 1.1;
 
 const CATALOGO_LOCAL = [
     { id: 5, nombre_comun: 'Plumeria', nombre_cientifico: 'Plumeria rubra', tipo: 'arbórea', temp_optima: 27, temp_min: 15, temp_max: 38, luz_optima: 1000, luz_min: 300, luz_max: 2200, agua_optima: 40, agua_min: 20, agua_max: 60, nutrientes_opt: 60, co2_optimo: 400, tasa_r: 0.12, capacidad_k: 150, dias_madurez: 120, biomasa_max: 1200, color_tallo: '#365e38', color_hoja: '#88d424', color_flor: '#fffcf7', descripcion: 'Árbol tropical ornamental con flores fragantes de 5 pétalos. Especie nativa mesoamericana.' },
@@ -264,6 +644,148 @@ const CATALOGO_LOCAL = [
     { id: 2, nombre_comun: 'Frijol', nombre_cientifico: 'Phaseolus vulgaris', tipo: 'herbácea', temp_optima: 24, temp_min: 12, temp_max: 35, luz_optima: 700, luz_min: 200, luz_max: 1800, agua_optima: 50, agua_min: 35, agua_max: 70, nutrientes_opt: 65, co2_optimo: 380, tasa_r: 0.14, capacidad_k: 80, dias_madurez: 85, biomasa_max: 350, color_tallo: '#2d5a1e', color_hoja: '#3d8b2f', color_flor: '#ffffff', descripcion: 'Leguminosa con fijación biológica de nitrógeno en el suelo.' },
     { id: 4, nombre_comun: 'Arabidopsis', nombre_cientifico: 'Arabidopsis thaliana', tipo: 'herbácea', temp_optima: 22, temp_min: 8, temp_max: 30, luz_optima: 500, luz_min: 100, luz_max: 1200, agua_optima: 45, agua_min: 25, agua_max: 65, nutrientes_opt: 60, co2_optimo: 400, tasa_r: 0.20, capacidad_k: 30, dias_madurez: 45, biomasa_max: 50, color_tallo: '#3a7a3a', color_hoja: '#7cc87c', color_flor: '#eeeeee', descripcion: 'Planta modelo con genoma completamente mapeado en biología vegetal.' }
 ];
+
+function limitar(valor, minimo, maximo) {
+    return Math.max(minimo, Math.min(maximo, valor));
+}
+
+function leerAmbienteBaseDesdeUI() {
+    return {
+        temperatura: parseFloat(document.getElementById('slider-temp').value),
+        luz: parseFloat(document.getElementById('slider-luz').value),
+        agua: parseFloat(document.getElementById('slider-agua').value),
+        nutrientes: parseFloat(document.getElementById('slider-nutrientes').value),
+        co2: parseFloat(document.getElementById('slider-co2').value)
+    };
+}
+
+function ruidoDiario(dia, canal) {
+    const semilla = (especieActual ? Number(especieActual.id) : 1) * 97.31;
+    const valor = Math.sin((dia + canal * 17.13 + semilla) * 127.1) * 43758.5453;
+    return valor - Math.floor(valor);
+}
+
+function generarClimaDiario(dia, ambienteBase) {
+    let temperatura = ambienteBase.temperatura + Math.sin(dia * 0.31) * 2.6 + (ruidoDiario(dia, 1) - 0.5) * 2.8;
+    let luz = ambienteBase.luz * (0.91 + Math.sin(dia * 0.23 + 0.7) * 0.1 + (ruidoDiario(dia, 2) - 0.5) * 0.12);
+    let agua = ambienteBase.agua + Math.sin(dia * 0.19 + 1.2) * 6 + (ruidoDiario(dia, 3) - 0.5) * 5 - Math.min(dia * 0.025, 6);
+    const nutrientes = Math.max(0, ambienteBase.nutrientes - dia * 0.035);
+    const co2 = ambienteBase.co2 + Math.round((ruidoDiario(dia, 4) - 0.5) * 36);
+    const eventos = [];
+    let tipoClima = 'soleado';
+
+    if (dia > 0 && dia % 28 === 0) {
+        temperatura += 8;
+        agua -= 9;
+        luz *= 1.12;
+        tipoClima = 'calor';
+        eventos.push({ icono: '🔥', nombre: 'Ola de calor', detalle: 'Temperatura elevada y mayor pérdida de agua.', dano: 8 });
+    }
+
+    if (dia > 0 && dia % 19 === 0) {
+        temperatura -= 1.5;
+        agua += 18;
+        luz *= 0.72;
+        if (tipoClima !== 'calor') tipoClima = 'lluvia';
+        eventos.push({ icono: '🌧️', nombre: 'Lluvia moderada', detalle: 'El sustrato recupera humedad.', dano: 0 });
+    } else if (dia > 0 && dia % 11 === 0 && tipoClima !== 'calor') {
+        luz *= 0.52;
+        tipoClima = 'nublado';
+        eventos.push({ icono: '☁️', nombre: 'Jornada nublada', detalle: 'Menor radiación disponible para fotosíntesis.', dano: 0 });
+    }
+
+    if (dia > 0 && dia % 37 === 0) {
+        eventos.push({ icono: '🐛', nombre: 'Plaga detectada', detalle: 'Daño foliar y consumo de tejido vegetal.', dano: 16 });
+    }
+
+    if (dia > 0 && dia % 53 === 0) {
+        const humedadAlta = agua > (especieActual ? Number(especieActual.agua_optima) : 55) + 18;
+        eventos.push(humedadAlta
+            ? { icono: '🍄', nombre: 'Riesgo de hongos', detalle: 'La humedad persistente favorece una infección foliar.', dano: 12 }
+            : { icono: '🧪', nombre: 'Reserva de nutrientes baja', detalle: 'La planta necesita recuperar nutrientes del sustrato.', dano: 7 });
+    }
+
+    temperatura = limitar(temperatura, 5, 45);
+    luz = limitar(luz, 100, 2500);
+    agua = limitar(agua, 5, 95);
+    const ambiente = { temperatura, luz, agua, nutrientes: limitar(nutrientes, 0, 100), co2: limitar(co2, 300, 1200) };
+    const especie = especieActual || {};
+    let nombreClima = 'Soleado y estable';
+    let iconoClima = '☀️';
+
+    if (tipoClima === 'calor') {
+        nombreClima = 'Ola de calor';
+        iconoClima = '🔥';
+    } else if (tipoClima === 'lluvia') {
+        nombreClima = 'Lluvia moderada';
+        iconoClima = '🌧️';
+    } else if (tipoClima === 'nublado') {
+        nombreClima = 'Cielo nublado';
+        iconoClima = '☁️';
+    } else if (temperatura > (Number(especie.temp_optima) || 25) + 4) {
+        nombreClima = 'Día cálido';
+        iconoClima = '🌤️';
+    } else if (agua < (Number(especie.agua_optima) || 55) - 8) {
+        nombreClima = 'Ambiente seco';
+        iconoClima = '🌵';
+    } else if (luz < ambienteBase.luz * 0.82) {
+        nombreClima = 'Parcialmente nublado';
+        iconoClima = '🌥️';
+    }
+
+    return { ambiente, eventos, tipoClima, nombreClima, iconoClima };
+}
+
+function estadoDeSalud(salud) {
+    if (salud < 30) return { etiqueta: 'Estado crítico', clase: 'is-critical' };
+    if (salud < 65) return { etiqueta: 'Deterioro visible', clase: 'is-critical' };
+    if (salud < 85) return { etiqueta: 'Estrés acumulado', clase: 'is-stressed' };
+    return { etiqueta: 'Vigor saludable', clase: '' };
+}
+
+function reconstruirHistorialDiario(hastaDia, ambienteBase) {
+    growthEngine.reset();
+    growthEngine.setEnvironment(ambienteBase);
+    dailyHistory = [];
+    let salud = 100;
+
+    const climaInicial = generarClimaDiario(0, ambienteBase);
+    const medicionInicial = growthEngine.generarMedicion(0);
+    dailyHistory.push({
+        ...medicionInicial,
+        ambiente: climaInicial.ambiente,
+        eventos: [],
+        tipo_clima: climaInicial.tipoClima,
+        clima: climaInicial.nombreClima,
+        icono_clima: climaInicial.iconoClima,
+        salud,
+        hojas_perdidas: 0
+    });
+
+    for (let dia = 1; dia <= hastaDia; dia++) {
+        const clima = generarClimaDiario(dia, ambienteBase);
+        growthEngine.setEnvironment(clima.ambiente);
+        const medicion = growthEngine.step();
+        const estres = medicion.estres_total;
+        const danoEstres = Math.max(0, estres - 24) * 0.1;
+        const recuperacion = estres < 16 ? 0.65 : estres < 28 ? 0.2 : 0;
+        const danoEventos = clima.eventos.reduce((total, evento) => total + evento.dano, 0);
+        salud = limitar(salud + recuperacion - danoEstres - danoEventos, 0, 100);
+
+        const hojasPerdidas = Math.min(arrayHojas.length, Math.round(((100 - salud) / 100) * arrayHojas.length * 0.82));
+        medicion.salud = Math.round(salud);
+        medicion.hojas_perdidas = hojasPerdidas;
+        medicion.num_hojas = Math.max(0, medicion.num_hojas - Math.round((100 - salud) * 0.12));
+        medicion.biomasa = Math.round(medicion.biomasa * (0.55 + salud * 0.0045) * 100) / 100;
+        medicion.altura = Math.round(medicion.altura * (0.9 + salud * 0.001) * 100) / 100;
+        medicion.ambiente = clima.ambiente;
+        medicion.eventos = clima.eventos;
+        medicion.tipo_clima = clima.tipoClima;
+        medicion.clima = clima.nombreClima;
+        medicion.icono_clima = clima.iconoClima;
+        dailyHistory.push(medicion);
+    }
+}
 
 // ============================================================
 // 5. INICIALIZACIÓN Y CONEXIÓN API REST
@@ -302,9 +824,9 @@ async function checkApiAndLoadSpecies() {
     const plumeria = especiesCatalogo.find(e => e.nombre_comun === 'Plumeria') || especiesCatalogo[0];
     seleccionarEspecie(plumeria);
 
-    // Inicializar simulación a Día 45 para renderizado visual pleno inmediato
-    growthEngine.simularCompleto(45);
-    actualizarGrowthTimeline(45);
+    // Mostrar una trayectoria inicial para que el usuario pueda explorar el registro diario.
+    maxSimulatedDay = Math.min(45, growthEngine.maxDias);
+    actualizarGrowthTimeline(maxSimulatedDay);
 
     cargarHistorialSimulaciones();
     cargarReportesBio();
@@ -332,6 +854,8 @@ function populateSpeciesDropdowns() {
 function seleccionarEspecie(especie) {
     especieActual = especie;
     growthEngine.setEspecie(especie);
+    document.getElementById('timeline-slider').max = growthEngine.maxDias;
+    maxSimulatedDay = Math.min(maxSimulatedDay, growthEngine.maxDias);
 
     const selMain = document.getElementById('sel-especie');
     if (selMain) selMain.value = especie.id;
@@ -355,7 +879,7 @@ function seleccionarEspecie(especie) {
     if (especie.color_tallo) matTallo.color.set(especie.color_tallo);
     if (especie.color_hoja) {
         matHoja.color.set(especie.color_hoja);
-        arrayHojas.forEach(h => h.material.color.set(especie.color_hoja));
+        plantInstances.forEach(instancia => instancia.hojas.forEach(hoja => hoja.material.color.set(especie.color_hoja)));
     }
     if (especie.color_flor) matPetalo.color.set(especie.color_flor);
 
@@ -367,30 +891,52 @@ function actualizarParametrosDesdeUI() {
     const r = parseFloat(document.getElementById('input-r').value) || 0.12;
     const K = parseFloat(document.getElementById('input-k').value) || 150;
 
-    const env = {
-        temperatura: parseFloat(document.getElementById('slider-temp').value),
-        luz: parseFloat(document.getElementById('slider-luz').value),
-        agua: parseFloat(document.getElementById('slider-agua').value),
-        nutrientes: parseFloat(document.getElementById('slider-nutrientes').value),
-        co2: parseFloat(document.getElementById('slider-co2').value)
-    };
-
     growthEngine.setModel(modelo);
     growthEngine.setParams(r, K, 1);
-    growthEngine.setEnvironment(env);
+    growthEngine.setEnvironment(leerAmbienteBaseDesdeUI());
+    actualizarDescripcionModelo();
+    actualizarGrowthTimeline(growthEngine.dia);
+}
 
-    // Efecto visual de clorosis/marchitamiento por estrés
-    const estresTotal = growthEngine.calcularEstresTotal();
-    const estresH = growthEngine.calcularEstresHidrico();
-    if (estresH > 40 || estresTotal > 45) {
-        const factor = Math.min(1, (estresTotal - 40) / 60);
-        const clrMarchito = new THREE.Color(0xb5a642).lerp(new THREE.Color(0x754320), factor);
-        arrayHojas.forEach(h => h.material.color.set(clrMarchito));
-    } else if (especieActual && especieActual.color_hoja) {
-        arrayHojas.forEach(h => h.material.color.set(especieActual.color_hoja));
+const GUIA_MODELOS = {
+    logistico: {
+        titulo: 'Logístico de Verhulst',
+        ecuacion: 'dN/dt = rN (1 − N/K)',
+        descripcion: 'La curva tiene forma de S: comienza lentamente, acelera durante el crecimiento y después se frena al acercarse a K. Así representa la competencia por agua, luz, espacio y nutrientes.',
+        uso: 'Útil cuando el cultivo tiene recursos limitados y una capacidad máxima.'
+    },
+    gompertz: {
+        titulo: 'Gompertz',
+        ecuacion: 'N(t) = K · exp(−exp(−r(t − t₀)))',
+        descripcion: 'Describe una curva sigmoide asimétrica: el cambio más rápido ocurre antes que en el modelo logístico y luego la acumulación se desacelera gradualmente.',
+        uso: 'Útil para aproximar desarrollo de frutos, biomasa y crecimiento con maduración prolongada.'
+    },
+    exponencial: {
+        titulo: 'Exponencial de Malthus',
+        ecuacion: 'N(t) = N₀ · e^(r·t)',
+        descripcion: 'La tasa de aumento es proporcional al tamaño actual: mientras más biomasa hay, más rápido crece. En esta simulación se limita cerca de K para mantener una escala visual manejable.',
+        uso: 'Útil para representar una fase inicial con recursos abundantes y poca competencia.'
+    },
+    lineal: {
+        titulo: 'Lineal',
+        ecuacion: 'N(t) = N₀ + a·t',
+        descripcion: 'Suma una cantidad similar en cada unidad de tiempo y no cambia su pendiente según la biomasa. El resultado se detiene al llegar a la capacidad K.',
+        uso: 'Útil como referencia sencilla para comparar una tasa constante de crecimiento.'
     }
+};
 
-    actualizarDashboardKPIs();
+function actualizarDescripcionModelo() {
+    const modelo = document.getElementById('sel-modelo').value || 'logistico';
+    const guia = GUIA_MODELOS[modelo] || GUIA_MODELOS.logistico;
+    const tasa = Number.parseFloat(document.getElementById('input-r').value) || 0;
+    const capacidad = Number.parseFloat(document.getElementById('input-k').value) || 0;
+
+    document.getElementById('model-explanation-title').textContent = guia.titulo;
+    document.getElementById('model-explanation-equation').textContent = guia.ecuacion;
+    document.getElementById('model-explanation-text').textContent = guia.descripcion;
+    document.getElementById('model-explanation-use').textContent = `Uso: ${guia.uso}`;
+    document.getElementById('model-explanation-params').textContent = `r = ${tasa.toFixed(2)} · K = ${capacidad}`;
+    document.getElementById('growth-model-explanation').dataset.model = modelo;
 }
 
 // ============================================================
@@ -398,7 +944,7 @@ function actualizarParametrosDesdeUI() {
 // ============================================================
 function actualizarDashboardKPIs() {
     const dia = growthEngine.dia;
-    const med = growthEngine.generarMedicion(dia);
+    const med = dailyHistory[dia] || growthEngine.generarMedicion(dia);
 
     document.getElementById('kpi-dia').textContent = dia;
     document.getElementById('kpi-altura').textContent = `${med.altura.toFixed(1)} u`;
@@ -436,6 +982,181 @@ function actualizarDashboardKPIs() {
     }
 
     actualizarPanelDecisiones(dia);
+    actualizarResumenTimeline(med);
+}
+
+function actualizarResumenTimeline(med) {
+    const salud = Number.isFinite(Number(med.salud)) ? Number(med.salud) : 100;
+    const estado = estadoDeSalud(salud);
+    const clima = med.ambiente || growthEngine.environment;
+    const eventos = med.eventos || [];
+    const badge = document.getElementById('daily-health-badge');
+
+    document.getElementById('daily-weather-icon').textContent = med.icono_clima || '☀️';
+    document.getElementById('daily-weather-name').textContent = `${formatearTiempoCiclo(med.dia)} · ${med.clima || 'Condiciones estables'}`;
+    const resumenEvento = document.getElementById('daily-event-summary');
+    resumenEvento.textContent = eventos.length
+        ? eventos.map(evento => `${evento.icono} ${evento.nombre}`).join(' · ')
+        : 'Sin eventos extraordinarios; se registraron las condiciones del cultivo.';
+    resumenEvento.title = eventos.map(evento => `${evento.nombre}: ${evento.detalle}`).join(' | ');
+    document.getElementById('daily-temp').textContent = Number(clima.temperatura).toFixed(1);
+    document.getElementById('daily-water').textContent = Math.round(clima.agua);
+    document.getElementById('daily-light').textContent = Math.round(clima.luz);
+    document.getElementById('daily-leaves').textContent = med.num_hojas;
+    document.getElementById('daily-health-value').textContent = `${Math.round(salud)}%`;
+    document.getElementById('daily-health-label').textContent = estado.etiqueta;
+    document.getElementById('daily-health-bar').style.width = `${salud}%`;
+    document.getElementById('daily-health-bar').style.backgroundColor = salud < 30 ? '#ef5350' : salud < 65 ? '#ffa726' : '#a8f060';
+    badge.className = `plant-health-badge ${estado.clase}`.trim();
+
+    actualizarLineaAgronomica();
+
+    const list = document.getElementById('daily-timeline-list');
+    list.innerHTML = '';
+    const ventanaDias = 31;
+    const inicioVentana = Math.max(0, Math.min(growthEngine.dia - 15, maxSimulatedDay - ventanaDias + 1));
+    const registrosVisibles = dailyHistory.slice(inicioVentana, inicioVentana + ventanaDias);
+    registrosVisibles.forEach(registro => {
+        const diaEstado = estadoDeSalud(registro.salud);
+        const eventoPrincipal = (registro.eventos || [])[0];
+        const extraEventos = Math.max(0, (registro.eventos || []).length - 1);
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = `daily-day-card ${registro.dia === growthEngine.dia ? 'is-selected' : ''} ${diaEstado.clase}`.trim();
+        card.dataset.day = registro.dia;
+        card.setAttribute('aria-current', registro.dia === growthEngine.dia ? 'date' : 'false');
+        card.setAttribute('aria-label', `${formatearTiempoCiclo(registro.dia)}: ${registro.clima}, ${Math.round(registro.salud)} por ciento de vigor`);
+        card.title = (registro.eventos || []).map(evento => `${evento.nombre}: ${evento.detalle}`).join(' | ');
+        card.innerHTML = `
+            <span class="daily-day-top"><span>${formatearTiempoCiclo(registro.dia).toUpperCase()}</span><span class="day-health">${Math.round(registro.salud)}%</span></span>
+            <strong>${registro.icono_clima} ${registro.clima}</strong>
+            <small>${Number(registro.ambiente.temperatura).toFixed(1)}°C · 💧${Math.round(registro.ambiente.agua)}% · 🍃${registro.num_hojas}</small>
+            <span class="daily-day-event ${eventoPrincipal ? 'has-event' : ''}">${eventoPrincipal ? `${eventoPrincipal.icono} ${eventoPrincipal.nombre}${extraEventos ? ` +${extraEventos}` : ''}` : '· Sin evento especial'}</span>
+        `;
+        card.addEventListener('click', () => {
+            pausarSimulacion();
+            document.getElementById('timeline-slider').value = registro.dia;
+            actualizarGrowthTimeline(registro.dia);
+        });
+        list.appendChild(card);
+    });
+
+    const currentCard = list.querySelector('.daily-day-card.is-selected');
+    if (currentCard) currentCard.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+}
+
+function formatearTiempoCiclo(dia) {
+    const maxDias = growthEngine.maxDias;
+    if (maxDias < 365) return `Día ${dia}`;
+    if (dia >= maxDias) return `Año ${Math.ceil(maxDias / 365)} · cierre`;
+    const anio = Math.floor(dia / 365) + 1;
+    return `Año ${anio} · día ${dia % 365}`;
+}
+
+function actualizarLineaAgronomica() {
+    const maxDias = Math.max(1, growthEngine.maxDias);
+    const diaActual = growthEngine.dia;
+    const progreso = limitar((diaActual / maxDias) * 100, 0, 100);
+    const llenado = document.getElementById('agronomic-track-fill');
+    const hitos = document.getElementById('agronomic-milestones');
+    const resumen = document.getElementById('agro-cycle-summary');
+
+    llenado.style.width = `${progreso}%`;
+    resumen.textContent = `${formatearTiempoCiclo(diaActual)} / ${formatearTiempoCiclo(maxDias)} · ${Math.round(progreso)}%`;
+    hitos.innerHTML = '';
+
+    const etapas = [
+        { fraccion: 0, etiqueta: 'Inicio', icono: '🌱' },
+        { fraccion: 0.22, etiqueta: 'Establecimiento', icono: '🌿' },
+        { fraccion: 0.48, etiqueta: 'Crecimiento', icono: '🍃' },
+        { fraccion: 0.74, etiqueta: 'Madurez', icono: '🌼' },
+        { fraccion: 1, etiqueta: 'Cierre', icono: '🌾' }
+    ];
+
+    etapas.forEach((etapa, indice) => {
+        const diaHito = Math.round(maxDias * etapa.fraccion);
+        const boton = document.createElement('button');
+        boton.type = 'button';
+        boton.className = `agro-milestone ${diaActual >= diaHito ? 'is-complete' : ''} ${indice === etapas.findIndex((hito, i) => diaActual >= Math.round(maxDias * hito.fraccion) && (i === etapas.length - 1 || diaActual < Math.round(maxDias * etapas[i + 1].fraccion))) ? 'is-current' : ''}`.trim();
+        boton.classList.toggle('at-start', indice === 0);
+        boton.classList.toggle('at-end', indice === etapas.length - 1);
+        boton.style.left = `${etapa.fraccion * 100}%`;
+        boton.title = `${etapa.etiqueta} · ${formatearTiempoCiclo(diaHito)}. Clic para ir a ese punto.`;
+        boton.setAttribute('aria-label', `${etapa.etiqueta}, ${formatearTiempoCiclo(diaHito)}`);
+        boton.innerHTML = `<span class="agro-milestone-dot">${etapa.icono}</span><span class="agro-milestone-label"><strong>${etapa.etiqueta}</strong><small>${formatearTiempoCiclo(diaHito)}</small></span>`;
+        boton.addEventListener('click', () => {
+            pausarSimulacion();
+            actualizarGrowthTimeline(diaHito);
+        });
+        hitos.appendChild(boton);
+    });
+
+    const eventos = dailyHistory
+        .filter(registro => (registro.eventos || []).length > 0)
+        .slice(-6);
+    eventos.forEach(registro => {
+        const evento = registro.eventos[0];
+        const marca = document.createElement('button');
+        marca.type = 'button';
+        marca.className = `agro-event-marker ${registro.dia <= diaActual ? 'is-past' : ''}`;
+        marca.style.left = `${(registro.dia / maxDias) * 100}%`;
+        marca.textContent = evento.icono;
+        marca.title = `${formatearTiempoCiclo(registro.dia)} · ${evento.nombre}: ${evento.detalle}`;
+        marca.setAttribute('aria-label', `${evento.nombre} en ${formatearTiempoCiclo(registro.dia)}`);
+        marca.addEventListener('click', () => {
+            pausarSimulacion();
+            actualizarGrowthTimeline(registro.dia);
+        });
+        hitos.appendChild(marca);
+    });
+}
+
+function actualizarAspectoPlanta(med) {
+    plantHealth = Number.isFinite(Number(med.salud)) ? Number(med.salud) : 100;
+    const severidad = (100 - plantHealth) / 100;
+    const colorHojaBase = new THREE.Color(especieActual?.color_hoja || '#88d424');
+    const colorTalloBase = new THREE.Color(especieActual?.color_tallo || '#365e38');
+    const colorFlorBase = new THREE.Color(especieActual?.color_flor || '#fffcf7');
+    const amarillo = new THREE.Color(0xd2b842);
+    const marron = new THREE.Color(0x76503a);
+    const hojasCaidas = med.hojas_perdidas || 0;
+
+    plantInstances.forEach(instancia => {
+        instancia.hojas.forEach((hoja, indice) => {
+            const tono = colorHojaBase.clone()
+                .lerp(amarillo, limitar(severidad * 1.05, 0, 0.82))
+                .lerp(marron, limitar((65 - plantHealth) / 65, 0, 0.7));
+            hoja.material.color.copy(tono);
+            const rangoCaida = (indice * 7) % Math.max(1, instancia.hojas.length);
+            hoja.userData.dropped = rangoCaida < hojasCaidas;
+            hoja.visible = leavesVisible && !hoja.userData.dropped;
+            if (hoja.parent) {
+                hoja.parent.rotation.x = 0.14 + severidad * 0.42;
+                hoja.parent.rotation.z = ((indice % 3) - 1) * severidad * 0.16;
+            }
+        });
+        instancia.planta.scale.set(1 - severidad * 0.1, 1 - severidad * 0.24, 1 - severidad * 0.1);
+    });
+
+    matTallo.color.copy(colorTalloBase).lerp(marron, limitar(severidad * 0.7, 0, 0.58));
+    matPetalo.color.copy(colorFlorBase).lerp(marron, limitar((55 - plantHealth) / 70, 0, 0.48));
+}
+
+function actualizarClimaEscenario(med, ambienteBase) {
+    const factorLuz = limitar(med.ambiente.luz / Math.max(1, ambienteBase.luz), 0.38, 1.22);
+    directionalLight.intensity = manualLightSetting * 1.25 * factorLuz;
+    ambientLight.intensity = manualLightSetting * 0.45 * (0.82 + factorLuz * 0.18);
+
+    const cielos = {
+        soleado: new THREE.Color(0x7bc6eb),
+        nublado: new THREE.Color(0x8295a0),
+        lluvia: new THREE.Color(0x526d82),
+        calor: new THREE.Color(0xe8a36c)
+    };
+    const cielo = cielos[med.tipo_clima] || cielos.soleado;
+    scene.background = cielo;
+    if (scene.fog) scene.fog.color.copy(cielo);
+    particleMat.opacity = med.tipo_clima === 'lluvia' ? 0.18 : med.tipo_clima === 'nublado' ? 0.28 : 0.45;
 }
 
 function actualizarPanelDecisiones(dia) {
@@ -545,9 +1266,10 @@ function initCharts() {
 
 function updateLiveChart() {
     if (!liveChart) return;
-    const labels = growthEngine.mediciones.map(m => `D${m.dia}`);
-    const dataBio = growthEngine.mediciones.map(m => m.biomasa);
-    const dataAlt = growthEngine.mediciones.map(m => m.altura);
+    const visibles = growthEngine.mediciones.filter(m => m.dia <= growthEngine.dia);
+    const labels = visibles.map(m => `D${m.dia}`);
+    const dataBio = visibles.map(m => m.biomasa);
+    const dataAlt = visibles.map(m => m.altura);
 
     liveChart.data.labels = labels;
     liveChart.data.datasets[0].data = dataBio;
@@ -630,16 +1352,17 @@ async function guardarSimulacionMySQL() {
         return;
     }
 
-    const medActual = growthEngine.generarMedicion(diaActual);
+    const medActual = dailyHistory[diaActual] || growthEngine.generarMedicion(diaActual);
+    const ambienteBase = leerAmbienteBaseDesdeUI();
     const payload = {
         nombre,
         especie_id: especieActual ? especieActual.id : 5,
         modelo: growthEngine.model,
-        temperatura: growthEngine.environment.temperatura,
-        luz: growthEngine.environment.luz,
-        agua: growthEngine.environment.agua,
-        nutrientes: growthEngine.environment.nutrientes,
-        co2: growthEngine.environment.co2,
+        temperatura: ambienteBase.temperatura,
+        luz: ambienteBase.luz,
+        agua: ambienteBase.agua,
+        nutrientes: ambienteBase.nutrientes,
+        co2: ambienteBase.co2,
         param_r: growthEngine.params.r,
         param_k: growthEngine.params.K,
         dias_simulados: diaActual,
@@ -656,8 +1379,9 @@ async function guardarSimulacionMySQL() {
         const res = await window.API.crearSimulacion(payload);
         const simId = res.id;
 
-        if (growthEngine.mediciones.length > 0) {
-            const batch = growthEngine.mediciones.map(m => ({
+        const medicionesHastaHoy = growthEngine.mediciones.filter(m => m.dia <= diaActual);
+        if (medicionesHastaHoy.length > 0) {
+            const batch = medicionesHastaHoy.map(m => ({
                 simulacion_id: simId,
                 ...m
             }));
@@ -775,6 +1499,7 @@ async function reproducirSimulacionHistorica(id) {
                 prediccion_cosecha_dias: parseInt(m.prediccion_cosecha_dias)
             }));
             const maxDia = meds[meds.length - 1].dia;
+            maxSimulatedDay = 0;
             actualizarGrowthTimeline(maxDia);
         }
 
@@ -838,14 +1563,17 @@ function exportarCSV() {
         return;
     }
 
-    const headers = ['dia', 'altura_u', 'biomasa_g', 'num_hojas', 'num_ramas', 'estres_hidrico', 'estres_termico', 'estres_luminico', 'estres_nutricional', 'estres_total', 'icr', 'dias_cosecha'];
-    const rows = growthEngine.mediciones.map(m => [
-        m.dia, m.altura, m.biomasa, m.num_hojas, m.num_ramas,
+    const headers = ['dia', 'clima', 'temperatura_C', 'humedad_sustrato_pct', 'radiacion', 'evento', 'vigor_pct', 'hojas_perdidas', 'altura_u', 'biomasa_g', 'num_hojas', 'num_ramas', 'estres_hidrico', 'estres_termico', 'estres_luminico', 'estres_nutricional', 'estres_total', 'icr', 'dias_cosecha'];
+    const medicionesHastaHoy = growthEngine.mediciones.filter(m => m.dia <= growthEngine.dia);
+    const rows = medicionesHastaHoy.map(m => [
+        m.dia, m.clima, m.ambiente?.temperatura?.toFixed(1), m.ambiente?.agua, m.ambiente?.luz,
+        (m.eventos || []).map(evento => evento.nombre).join(' | '), m.salud, m.hojas_perdidas,
+        m.altura, m.biomasa, m.num_hojas, m.num_ramas,
         m.indice_estres_hidrico, m.indice_estres_termico, m.indice_estres_luminico, m.indice_estres_nutricional,
         m.estres_total, m.icr, m.prediccion_cosecha_dias
     ]);
-
-    const csvContent = 'data:text/csv;charset=utf-8,' + headers.join(',') + '\n' + rows.map(e => e.join(',')).join('\n');
+    const escaparCSV = valor => `"${String(valor ?? '').replace(/"/g, '""')}"`;
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].map(fila => fila.map(escaparCSV).join(',')).join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
@@ -883,9 +1611,11 @@ function animate() {
 
     // Viento suave orgánico
     if (isWindy) {
-        planta.rotation.z = Math.sin(elapsedTime * 1.6) * 0.035;
-        planta.rotation.x = Math.cos(elapsedTime * 1.3) * 0.025;
-        tallo.rotation.y = Math.sin(elapsedTime * 0.5) * 0.04;
+        plantInstances.forEach(instancia => {
+            instancia.planta.rotation.z = Math.sin(elapsedTime * 1.6) * 0.035;
+            instancia.planta.rotation.x = Math.cos(elapsedTime * 1.3) * 0.025;
+            instancia.tallo.rotation.y = Math.sin(elapsedTime * 0.5) * 0.04;
+        });
     }
 
     // Deriva suave de partículas atmosféricas
@@ -926,7 +1656,7 @@ function actualizarPanelRaycasting() {
     if (objetoSeleccionado) {
         const data = objetoSeleccionado.userData;
         const dia = growthEngine.dia;
-        const med = growthEngine.generarMedicion(dia);
+        const med = dailyHistory[dia] || growthEngine.generarMedicion(dia);
 
         infoName.textContent = data.name;
         infoEspecie.textContent = especieActual ? `${especieActual.nombre_comun} (${especieActual.nombre_cientifico})` : 'Plumeria Rubra';
@@ -941,7 +1671,7 @@ function actualizarPanelRaycasting() {
 }
 
 window.addEventListener('click', (event) => {
-    if (event.target.closest('#sidebar') || event.target.closest('#viewport-controls')) return;
+    if (event.target.closest('#sidebar') || event.target.closest('#viewport-controls') || event.target.closest('#daily-timeline-panel')) return;
 
     const rect = renderer.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -961,7 +1691,7 @@ window.addEventListener('click', (event) => {
 });
 
 window.addEventListener('mousemove', (event) => {
-    if (event.target.closest('#sidebar') || event.target.closest('#viewport-controls')) return;
+    if (event.target.closest('#sidebar') || event.target.closest('#viewport-controls') || event.target.closest('#daily-timeline-panel')) return;
 
     const rect = renderer.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -1066,37 +1796,47 @@ function setupEventListeners() {
     });
     document.getElementById('btn-color-hojas').addEventListener('click', () => {
         const rnd = Math.random() * 0xffffff;
-        arrayHojas.forEach(h => h.material.color.setHex(rnd));
+        plantInstances.forEach(instancia => instancia.hojas.forEach(hoja => hoja.material.color.setHex(rnd)));
     });
     document.getElementById('btn-toggle-hojas').addEventListener('click', () => {
-        arrayHojas.forEach(h => h.visible = !h.visible);
+        leavesVisible = !leavesVisible;
+        plantInstances.forEach(instancia => instancia.hojas.forEach(hoja => hoja.visible = leavesVisible && !hoja.userData.dropped));
+        document.getElementById('btn-toggle-hojas').textContent = leavesVisible ? '👁️ Follaje' : '🚫 Follaje';
     });
     document.getElementById('btn-reset').addEventListener('click', () => {
-        camera.position.set(0, 4.5, 10.5);
-        controls.target.set(0, 2.3, 0);
+        camera.position.set(0, 5.1, 14);
+        controls.target.set(0, 2.1, 0);
         controls.update();
     });
     document.getElementById('growth-speed-slider').addEventListener('input', (e) => {
         growthSpeed = parseFloat(e.target.value);
     });
     document.getElementById('light-slider').addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        directionalLight.intensity = val * 1.25;
-        ambientLight.intensity = val * 0.45;
-        const skyTint = skyColor.clone().multiplyScalar(Math.max(0.12, val));
-        scene.background = skyTint;
-        if (scene.fog) scene.fog.color = skyTint;
+        manualLightSetting = parseFloat(e.target.value);
+        const med = dailyHistory[growthEngine.dia];
+        if (med) actualizarClimaEscenario(med, leerAmbienteBaseDesdeUI());
     });
 }
 
 function actualizarGrowthTimeline(dia) {
-    growthEngine.simularCompleto(dia);
-    growthEngine.dia = dia;
-    normalizedGrowth = Math.min(1.35, (growthEngine.calcularCrecimiento(dia) / growthEngine.params.K) * 1.35);
+    const diaSeleccionado = limitar(Number.parseInt(dia, 10) || 0, 0, growthEngine.maxDias);
+    maxSimulatedDay = limitar(Math.max(maxSimulatedDay, diaSeleccionado), 0, growthEngine.maxDias);
+    const ambienteBase = leerAmbienteBaseDesdeUI();
+    reconstruirHistorialDiario(maxSimulatedDay, ambienteBase);
 
-    document.getElementById('timeline-slider').value = dia;
-    document.getElementById('timeline-day-val').textContent = dia;
+    const registroActual = dailyHistory[diaSeleccionado] || dailyHistory[0];
+    growthEngine.dia = diaSeleccionado;
+    growthEngine.setEnvironment(registroActual.ambiente);
+    plantHealth = registroActual.salud;
+    normalizedGrowth = Math.min(1.35, (growthEngine.calcularCrecimiento(diaSeleccionado) / growthEngine.params.K) * 1.35);
 
+    const timelineSlider = document.getElementById('timeline-slider');
+    timelineSlider.max = growthEngine.maxDias;
+    timelineSlider.value = diaSeleccionado;
+    document.getElementById('timeline-day-val').textContent = diaSeleccionado;
+
+    actualizarAspectoPlanta(registroActual);
+    actualizarClimaEscenario(registroActual, ambienteBase);
     actualizarDashboardKPIs();
     updateLiveChart();
 }
@@ -1104,8 +1844,7 @@ window.actualizarGrowthTimeline = actualizarGrowthTimeline;
 
 function avanzarUnDia() {
     if (growthEngine.dia >= growthEngine.maxDias) return;
-    const med = growthEngine.step();
-    actualizarGrowthTimeline(med.dia);
+    actualizarGrowthTimeline(growthEngine.dia + 1);
 }
 
 function toggleSimulacionLoop() {
@@ -1139,6 +1878,7 @@ function simularCicloCompleto() {
 
 function resetearSimulacion() {
     pausarSimulacion();
+    maxSimulatedDay = 0;
     actualizarGrowthTimeline(0);
 }
 
