@@ -1,0 +1,6 @@
+# Dependencias y temporales
+api/vendor/
+api/composer.phar
+.vscode/
+.idea/
+*.log
