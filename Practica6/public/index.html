@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Bioinformático de Cultivo 3D - Práctica 06</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Chart.js para analítica en tiempo real -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div id="app-container">
+        <!-- BARRA LATERAL BIOINFORMÁTICA -->
+        <aside id="sidebar">
+            <header class="sidebar-header">
+                <h1>🌿 BioLab 3D · Práctica 06</h1>
+                <div class="sub-badge">Simulador & Soporte a Decisiones Agronómicas</div>
+            </header>
+
+            <!-- PESTAÑAS -->
+            <nav class="sidebar-tabs">
+                <button class="tab-btn active" data-tab="tab-cultivo">Cultivo</button>
+                <button class="tab-btn" data-tab="tab-kpi">KPIs</button>
+                <button class="tab-btn" data-tab="tab-ab">A/B Test</button>
+                <button class="tab-btn" data-tab="tab-observatorio">Globo</button>
+                <button class="tab-btn" data-tab="tab-historial">Historial</button>
+                <button class="tab-btn" data-tab="tab-reportes">Reportes</button>
+                <button class="tab-btn" data-tab="tab-info">Info</button>
+            </nav>
+
+            <!-- ESTADO DE CONEXIÓN CON FLIGHTPHP & MYSQL -->
+            <div id="api-status-bar">
+                <span><span class="status-dot"></span>API REST: <strong id="api-status-text" style="color: #a8f060;">Conectando...</strong></span>
+                <button id="btn-recheck-api" class="btn btn-sm" style="background: #1b3820; padding: 2px 7px;">Reconectar</button>
+            </div>
+
+            <!-- TAB 1: PARÁMETROS DE CULTIVO -->
+            <section id="tab-cultivo" class="tab-panel active">
+                <h3>🧪 Configuración de Especie & Entorno</h3>
+                
+                <div class="form-group">
+                    <label for="sel-especie">Especie Botánica (MySQL):</label>
+                    <select id="sel-especie">
+                        <option value="">Cargando catálogo botánico...</option>
+                    </select>
+                </div>
+
+                <div id="especie-badge-info" style="background: rgba(46,125,50,0.2); border-left: 3px solid #a8f060; padding: 8px 10px; border-radius: 6px; font-size: 0.72rem; margin-bottom: 12px;">
+                    <div><strong id="badge-esp-nombre">Plumeria Rubra</strong> (<span id="badge-esp-tipo">arbórea</span>)</div>
+                    <div id="badge-esp-desc" style="color: #c8e6c9; margin-top: 3px; line-height: 1.35;">Cargando especificaciones biológicas...</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sel-modelo">Modelo Matemático de Crecimiento:</label>
+                    <select id="sel-modelo">
+                        <option value="logistico">Logístico (Verhulst) — Curva Sigmoide S</option>
+                        <option value="gompertz">Gompertz — Asimétrico / Desarrollo de frutos</option>
+                        <option value="exponencial">Exponencial — Malthusiano (Sin freno inicial)</option>
+                        <option value="lineal">Lineal — Tasa constante de elongación</option>
+                    </select>
+                </div>
+
+                <h4>🧬 Parámetros Genéticos Simulados</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="input-r">Tasa intrínseca (r):</label>
+                        <input type="number" id="input-r" step="0.01" min="0.01" max="1" value="0.12">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-k">Capacidad Carga (K):</label>
+                        <input type="number" id="input-k" step="5" min="10" max="500" value="150">
+                    </div>
+                </div>
+
+                <h4>☀️ Variables Ambientales de Cultivo</h4>
+                <div class="slider-group">
+                    <label>Temperatura: <span id="val-temp">25</span> °C <small id="opt-temp" style="color:#81c784;"></small></label>
+                    <input type="range" id="slider-temp" min="5" max="45" step="1" value="25">
+                </div>
+
+                <div class="slider-group">
+                    <label>Humedad Riego: <span id="val-agua">55</span> % <small id="opt-agua" style="color:#81c784;"></small></label>
+                    <input type="range" id="slider-agua" min="5" max="95" step="1" value="55">
+                </div>
+
+                <div class="slider-group">
+                    <label>Luz / Radiación: <span id="val-luz">800</span> µmol/m²s <small id="opt-luz" style="color:#81c784;"></small></label>
+                    <input type="range" id="slider-luz" min="100" max="2500" step="50" value="800">
+                </div>
+
+                <div class="slider-group">
+                    <label>Nutrientes N-P-K: <span id="val-nutrientes">70</span> % <small id="opt-nutrientes" style="color:#81c784;"></small></label>
+                    <input type="range" id="slider-nutrientes" min="10" max="100" step="1" value="70">
+                </div>
+
+                <div class="slider-group">
+                    <label>Dióxido de Carbono (CO₂): <span id="val-co2">400</span> ppm</label>
+                    <input type="range" id="slider-co2" min="300" max="1200" step="25" value="400">
+                </div>
+
+                <h4>⏱️ Ejecución y Simulación</h4>
+                <div class="btn-group">
+                    <button id="btn-sim-play" class="btn btn-primary">▶ Iniciar Simulación</button>
+                    <button id="btn-sim-pause" class="btn btn-warning">⏸ Pausar</button>
+                    <button id="btn-sim-step" class="btn btn-secondary">⏭ +1 Día</button>
+                    <button id="btn-sim-fast" class="btn btn-sm" style="background:#37474f; color:white;">⏩ Simular Ciclo Completo</button>
+                    <button id="btn-sim-reset" class="btn btn-danger btn-sm">↺ Reset 0%</button>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="input-sim-nombre">Nombre de la Simulación:</label>
+                    <input type="text" id="input-sim-nombre" value="Ensayo Plumeria Rubra - Invernadero A">
+                </div>
+                <div class="form-group">
+                    <label for="input-sim-notas">Notas agronómicas / Hipótesis:</label>
+                    <textarea id="input-sim-notas" placeholder="Ej: Evaluación de estrés térmico con modelo de Verhulst"></textarea>
+                </div>
+                <button id="btn-guardar-mysql" class="btn btn-primary btn-block">💾 Persistir Simulación en MySQL</button>
+                <div id="save-status-msg" style="margin-top: 6px;"></div>
+            </section>
+
+            <!-- TAB 2: KPIS Y MOTOR DE DECISIONES -->
+            <section id="tab-kpi" class="tab-panel">
+                <h3>📊 Indicadores Biológicos (KPIs)</h3>
+                
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="kpi-dia">0</div>
+                        <div class="kpi-label">Día Simulado</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="kpi-altura">0.0 u</div>
+                        <div class="kpi-label">Altura Planta</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="kpi-biomasa">0.0 g</div>
+                        <div class="kpi-label">Biomasa Acumulada</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="kpi-hojas">0</div>
+                        <div class="kpi-label">Hojas Activas</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="kpi-ramas">0</div>
+                        <div class="kpi-label">Ramas Secundarias</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="kpi-icr">0.000</div>
+                        <div class="kpi-label">ICR (Tasa Relativa)</div>
+                    </div>
+                </div>
+
+                <h4>🌡️ Índices de Estrés Fisiológico</h4>
+                <div style="margin-bottom: 8px;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.7rem; margin-bottom:3px;">
+                        <span>Estrés Ponderado Total:</span>
+                        <strong id="kpi-estres-total" style="color:#a8f060;">0%</strong>
+                    </div>
+                    <div style="background:#14281b; height:9px; border-radius:5px; overflow:hidden;">
+                        <div id="bar-estres-total" style="width:0%; height:100%; background:#4caf50; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+
+                <div style="font-size:0.68rem; color:var(--text-muted); display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px;">
+                    <div>💧 Hídrico: <strong id="kpi-estres-h" style="color:#ffee58;">0%</strong></div>
+                    <div>🌡️ Térmico: <strong id="kpi-estres-t" style="color:#ffee58;">0%</strong></div>
+                    <div>☀️ Lumínico: <strong id="kpi-estres-l" style="color:#ffee58;">0%</strong></div>
+                    <div>🌱 Nutricional: <strong id="kpi-estres-n" style="color:#ffee58;">0%</strong></div>
+                </div>
+
+                <div style="background: rgba(33,150,243,0.15); border-left: 3px solid #2196f3; padding: 7px 10px; border-radius: 6px; font-size: 0.74rem; margin-bottom: 12px;">
+                    ⏳ <strong>Pronóstico de Cosecha:</strong> <span id="kpi-cosecha">Calculando madurez...</span>
+                </div>
+
+                <h4>📈 Curva de Crecimiento en Vivo</h4>
+                <div class="chart-container">
+                    <canvas id="chart-crecimiento-live"></canvas>
+                </div>
+
+                <article id="growth-model-explanation" class="growth-model-explanation" aria-live="polite">
+                    <div class="growth-model-heading">
+                        <div>
+                            <span class="model-eyebrow">MODELO ACTIVO</span>
+                            <h4 id="model-explanation-title">Logístico de Verhulst</h4>
+                        </div>
+                        <code id="model-explanation-equation">dN/dt = rN (1 − N/K)</code>
+                    </div>
+                    <p id="model-explanation-text">Describe un crecimiento sigmoide: acelera al inicio y se frena cuando se acerca a la capacidad de carga K.</p>
+                    <div class="model-explanation-meta">
+                        <span id="model-explanation-use">Uso: crecimiento con recursos limitados.</span>
+                        <span>Parámetros: <strong id="model-explanation-params">r = 0.12 · K = 150</strong></span>
+                    </div>
+                </article>
+
+                <h4>🧠 Motor de Decisiones Agronómicas</h4>
+                <div id="decisiones-container">
+                    <div class="decision-card">
+                        <div class="decision-tipo">Sistema Listo</div>
+                        <div class="decision-msg">Inicia o avanza la simulación para recibir diagnósticos agronómicos en tiempo real.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: ESCENARIO A/B -->
+            <section id="tab-ab" class="tab-panel">
+                <h3>⚖️ Experimentación Comparativa A/B</h3>
+                <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;">
+                    Ejecuta dos escenarios agronómicos en paralelo para decidir la mejor estrategia de cultivo basada en biomasa final y estrés acumulado.
+                </p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sel-ab-specie-a">Especie Escenario A:</label>
+                        <select id="sel-ab-specie-a"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sel-ab-specie-b">Especie Escenario B:</label>
+                        <select id="sel-ab-specie-b"></select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sel-ab-modelo-a">Modelo A:</label>
+                        <select id="sel-ab-modelo-a">
+                            <option value="logistico">Logístico</option>
+                            <option value="gompertz">Gompertz</option>
+                            <option value="exponencial">Exponencial</option>
+                            <option value="lineal">Lineal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sel-ab-modelo-b">Modelo B:</label>
+                        <select id="sel-ab-modelo-b">
+                            <option value="gompertz">Gompertz</option>
+                            <option value="logistico">Logístico</option>
+                            <option value="exponencial">Exponencial</option>
+                            <option value="lineal">Lineal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="ab-container">
+                    <div class="ab-panel panel-a">
+                        <h5>🌱 Escenario A (Testigo)</h5>
+                        <div class="form-group">
+                            <label>Riego: <span id="ab-val-agua-a">55%</span></label>
+                            <input type="range" id="ab-slider-agua-a" min="10" max="90" value="55">
+                        </div>
+                        <div class="form-group">
+                            <label>Temp: <span id="ab-val-temp-a">25°C</span></label>
+                            <input type="range" id="ab-slider-temp-a" min="10" max="40" value="25">
+                        </div>
+                    </div>
+
+                    <div class="ab-panel panel-b">
+                        <h5>🌾 Escenario B (Tratamiento)</h5>
+                        <div class="form-group">
+                            <label>Riego: <span id="ab-val-agua-b">35%</span></label>
+                            <input type="range" id="ab-slider-agua-b" min="10" max="90" value="35">
+                        </div>
+                        <div class="form-group">
+                            <label>Temp: <span id="ab-val-temp-b">32°C</span></label>
+                            <input type="range" id="ab-slider-temp-b" min="10" max="40" value="32">
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-ejecutar-ab" class="btn btn-secondary btn-block" style="margin-top: 8px;">🔬 Ejecutar Comparación A/B</button>
+
+                <div id="ab-veredicto-card" style="margin-top: 10px; background: rgba(20,44,30,0.85); border: 1px solid rgba(168,240,96,0.3); border-radius: 8px; padding: 10px; display: none;">
+                    <h5 style="color:var(--accent-glow); font-size:0.75rem; margin-bottom:4px;">🏆 Dictamen Agronómico A/B</h5>
+                    <div id="ab-veredicto-texto" style="font-size:0.72rem; color:#e0f0e6; line-height: 1.45;"></div>
+                </div>
+
+                <div class="chart-container" style="margin-top: 10px; height: 180px;">
+                    <canvas id="chart-ab-comparison"></canvas>
+                </div>
+            </section>
+
+            <!-- TAB 4: HISTORIAL DE SIMULACIONES -->
+            <section id="tab-historial" class="tab-panel">
+                <h3>🗄️ Historial Persistido en MySQL</h3>
+                <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;">
+                    Registros en base de datos. Haz clic en "Cargar y Reproducir" para ver la planta y su trayectoria crecer en 3D.
+                </p>
+
+                <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                    <button id="btn-refrescar-historial" class="btn btn-secondary btn-sm">🔄 Recargar BD</button>
+                    <button id="btn-export-csv" class="btn btn-primary btn-sm">📥 Exportar CSV</button>
+                </div>
+
+                <div id="historial-lista">
+                    <div class="loading-indicator">Consultando MySQL...</div>
+                </div>
+            </section>
+
+            <!-- TAB 5: REPORTES Y ANALÍTICA -->
+            <section id="tab-reportes" class="tab-panel">
+                <h3>📑 Inteligencia Agronómica & Reportes</h3>
+                
+                <h4>🏆 Top 5 Simulaciones por Biomasa</h4>
+                <div style="overflow-x: auto;">
+                    <table class="report-table" id="tabla-top-biomasa">
+                        <thead>
+                            <tr>
+                                <th>Simulación</th>
+                                <th>Especie</th>
+                                <th>Modelo</th>
+                                <th>Biomasa</th>
+                                <th>Altura</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5" style="text-align:center;">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>⚡ Eficiencia Agronómica (g/día)</h4>
+                <div style="overflow-x: auto;">
+                    <table class="report-table" id="tabla-eficiencia">
+                        <thead>
+                            <tr>
+                                <th>Especie</th>
+                                <th>Eficiencia (g/día)</th>
+                                <th>Estrés Prom.</th>
+                                <th>Corridas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="4" style="text-align:center;">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>⏳ Tiempo Promedio a Madurez</h4>
+                <div style="overflow-x: auto;">
+                    <table class="report-table" id="tabla-madurez">
+                        <thead>
+                            <tr>
+                                <th>Especie</th>
+                                <th>Días Teóricos</th>
+                                <th>Días Observados</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="3" style="text-align:center;">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="export-btn-group" style="margin-top: 10px;">
+                    <button id="btn-imprimir-reporte" class="btn btn-secondary btn-block">🖨️ Generar Reporte / Imprimir PDF</button>
+                </div>
+            </section>
+
+            <!-- TAB 6: PREGUNTAS Y CUESTIONARIO ACADÉMICO -->
+            <section id="tab-info" class="tab-panel">
+                <h3>📋 Cuestionario Práctica 06</h3>
+                <div style="font-size: 0.74rem; color: #d1e7dd; line-height: 1.45;">
+                    <h4 style="color:#81c784; margin-top:6px;">1. ¿Qué aporta conectar la simulación 3D con FlightPHP y MySQL?</h4>
+                    <p>Permite pasar de una visualización puramente gráfica a un sistema bioinformático con trazabilidad, persistencia histórica, reproducibilidad de experimentos y soporte para toma de decisiones agronómicas basadas en series de tiempo.</p>
+
+                    <h4 style="color:#81c784; margin-top:8px;">2. Diferencia entre modelos de crecimiento matemático</h4>
+                    <p><strong>Lineal:</strong> Crecimiento constante sin dependencia de masa.<br>
+                    <strong>Exponencial:</strong> Crecimiento continuo sin restricciones ambientales.<br>
+                    <strong>Logístico (Verhulst):</strong> Incorpora freno por capacidad de carga $K$.<br>
+                    <strong>Gompertz:</strong> Asimetría con desaceleración progresiva, estándar biológico para modelar frutos y ramificación leñosa.</p>
+
+                    <h4 style="color:#81c784; margin-top:8px;">3. ¿Cómo influyen los índices de estrés en el 3D?</h4>
+                    <p>El estrés total reduce la tasa intrínseca $r$, lo que desacelera la escala de tallo y follaje en 3D, y cambia el material de las hojas hacia tonos cloróticos y marchitos.</p>
+
+                    <h4 style="color:#81c784; margin-top:8px;">4. Arquitectura de tres capas</h4>
+                    <p><strong>Presentación:</strong> Three.js (WebGL), Chart.js, HTML5/CSS3.<br>
+                    <strong>Lógica:</strong> GrowthEngine.js (ecuaciones diferenciales, cálculo de estrés, reglas de decisión).<br>
+                    <strong>Datos:</strong> FlightPHP REST API + MySQL 8 con PDO y transacciones batch.</p>
+                </div>
+            </section>
+                    <section id="tab-observatorio" class="tab-panel">
+                <h3>🌎 Observatorio Global de Cultivos</h3>
+                <p class="geo-help">Haz clic en el globo o escribe una coordenada. Las consultas pasan por PHP; humedad y disponibilidad derivadas son proxies, no análisis de parcela.</p>
+                <div class="geo-form-row"><label>Latitud<input id="geo-lat" type="number" min="-90" max="90" step="0.0001" value="14.291" /></label><label>Longitud<input id="geo-lon" type="number" min="-180" max="180" step="0.0001" value="-89.895" /></label></div>
+                <label class="geo-label" for="geo-species">Nombre científico para GBIF</label><input id="geo-species" value="Plumeria rubra" />
+                <button id="geo-query" class="btn btn-primary btn-block">Consultar esta ubicación</button>
+                <button id="geo-run-sim" class="btn btn-secondary btn-block" disabled>Usar condiciones en la simulación</button>
+                <div id="geo-status" class="geo-status" aria-live="polite">Selecciona un punto del globo para consultar datos.</div>
+                <div id="geo-summary" class="geo-summary"></div>
+                <h4>Comparación geográfica A/B</h4>
+                <label class="geo-label" for="geo-preset">Ubicaciones de ejemplo</label><select id="geo-preset"><option value="">Cargando ubicaciones…</option></select>
+                <div class="geo-form-row"><label>Ubicación A (lat, lon)<input id="geo-a" value="14.291, -89.895" /></label><label>Ubicación B (lat, lon)<input id="geo-b" value="37.888, -4.779" /></label></div>
+                <button id="geo-compare" class="btn btn-secondary btn-block">Comparar ubicaciones</button>
+                <div id="geo-ab-result" class="geo-summary"></div>
+                <h4>Ranking de idoneidad guardado</h4>
+                <button id="geo-ranking-refresh" class="btn btn-sm">Actualizar ranking</button>
+                <ol id="geo-ranking" class="geo-ranking"><li>Aún no hay análisis guardados.</li></ol>
+            </section>
+        </aside>
+
+        <!-- VISOR 3D VIEWPORT -->
+        <main id="viewport-container">
+            <section id="geo-observatory" class="geo-observatory" hidden aria-label="Globo geoespacial">
+                <header class="geo-map-header"><div><strong>OBSERVATORIO GLOBAL</strong><h2>Clima · Suelo · Biodiversidad</h2><p>Arrastra para rotar · rueda para acercar · clic para consultar</p></div><span id="geo-map-coordinates">14.291°, -89.895°</span></header>
+                <div id="geo-globe" class="geo-globe"></div>
+                <aside id="geo-map-card" class="geo-map-card"><h3>Datos de la ubicación</h3><p>Consulta un punto para cargar las fuentes públicas.</p></aside>
+                <footer class="geo-map-legend"><span>● Ubicación seleccionada</span><span>● Ocurrencias GBIF</span><span>● A / B · © OpenStreetMap</span></footer>
+            </section>
+            <!-- PANEL DE RAYCASTING (Al hacer clic sobre órganos vegetales 3D) -->
+            <div id="info-panel" class="hidden">
+                <h2 id="info-name">Órgano Vegetal</h2>
+                <p><strong>Especie:</strong> <span id="info-especie">Plumeria Rubra</span></p>
+                <p><strong>Geometría:</strong> <span id="info-type">...</span></p>
+                <p><strong>Altura (Aprox):</strong> <span id="info-height">...</span></p>
+                <p><strong>Crecimiento:</strong> <span id="info-growth">0%</span></p>
+                <p><strong>Estrés Asociado:</strong> <span id="info-estres" style="color:#ffa726;">0%</span></p>
+                <p><strong>Biomasa Atribuida:</strong> <span id="info-biomasa" style="color:#a8f060;">0.0 g</span></p>
+                <p><strong>Función Biológica:</strong> <span id="info-desc">...</span></p>
+            </div>
+
+            <!-- BITÁCORA DIARIA DEL CULTIVO -->
+            <section id="daily-timeline-panel" aria-label="Línea del tiempo diaria del cultivo">
+                <div class="daily-timeline-heading">
+                    <div>
+                        <span class="daily-eyebrow">BITÁCORA DEL CULTIVO</span>
+                        <h2>🗓️ Línea del tiempo agronómica</h2>
+                    </div>
+                    <div class="plant-health-badge" id="daily-health-badge">
+                        <span id="daily-health-value">100%</span>
+                        <small id="daily-health-label">Vigor saludable</small>
+                    </div>
+                </div>
+
+                <div class="daily-weather-summary">
+                    <div class="daily-weather-title">
+                        <span id="daily-weather-icon" aria-hidden="true">☀️</span>
+                        <div>
+                            <strong id="daily-weather-name">Preparando el cultivo</strong>
+                            <small id="daily-event-summary">Avanza la simulación para registrar el clima y los eventos.</small>
+                        </div>
+                    </div>
+                    <div class="daily-weather-metrics">
+                        <span>🌡️ <b id="daily-temp">--</b> °C</span>
+                        <span>💧 <b id="daily-water">--</b>% sustrato</span>
+                        <span>☀️ <b id="daily-light">--</b> radiación</span>
+                        <span>🍃 <b id="daily-leaves">--</b> hojas</span>
+                    </div>
+                    <div class="daily-health-track" aria-label="Vigor de la planta">
+                        <span id="daily-health-bar"></span>
+                    </div>
+                </div>
+
+                <div class="agronomic-timeline" aria-label="Etapas estimadas del ciclo del cultivo">
+                    <div class="agronomic-timeline-meta">
+                        <strong>🧭 Etapas del ciclo</strong>
+                        <span id="agro-cycle-summary">Día 0 de 120</span>
+                    </div>
+                    <div class="agronomic-track" id="agronomic-track">
+                        <span class="agronomic-track-fill" id="agronomic-track-fill"></span>
+                        <div class="agronomic-milestones" id="agronomic-milestones"></div>
+                    </div>
+                </div>
+
+                <div id="daily-timeline-list" class="daily-timeline-list" aria-label="Días simulados"></div>
+            </section>
+
+            <!-- CONTROLES INFERIORES EN VIEWPORT -->
+            <div id="viewport-controls">
+                <button id="btn-toggle-play">▶ Play/Pausa</button>
+                <button id="btn-restart-growth">↺ Reiniciar 3D</button>
+
+                <!-- Scrubber interactivo de tiempo/días -->
+                <div id="timeline-scrub-box">
+                    <label style="margin:0; font-size:0.68rem;">Día: <span id="timeline-day-val">0</span></label>
+                    <input type="range" id="timeline-slider" min="0" max="120" value="0" style="width:75px;">
+                </div>
+
+                <button id="btn-anim">🍃 Viento: ON</button>
+                <button id="btn-color-hojas">🎨 Tono Follaje</button>
+                <button id="btn-toggle-hojas">👁️ Follaje</button>
+                <button id="btn-reset">🎯 Centrar Cámara</button>
+
+                <span class="separator">|</span>
+
+                <label for="growth-speed-slider">
+                    Vel:
+                    <input type="range" id="growth-speed-slider" min="0.1" max="4" step="0.1" value="1.0">
+                </label>
+                <label for="light-slider">
+                    Sol:
+                    <input type="range" id="light-slider" min="0" max="2" step="0.1" value="1.1">
+                </label>
+            </div>
+
+            <!-- CRÉDITOS BOTÁNICOS -->
+            <div id="creditos">
+                Práctica 06: Persistencia & Bioinformática 3D · Humberto Josué Orozco Espinosa & Irlanda Goreti Álvarez Lomeli
+            </div>
+        </main>
+    </div>
+
+    <!-- SCRIPTS MODULARES -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script src="js/api-client.js"></script>
+    <script src="js/growth-engine.js"></script>
+    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/geo-observatorio.js"></script>
+    <div id="file-protocol-warning" role="alert" hidden>
+        Para cargar la vista 3D y el catálogo, ejecuta <strong>iniciar_servidores.bat</strong> desde la raíz de Practica 6 y abre
+        <strong>http://localhost:3006</strong>. No abras este HTML directamente como archivo.
+    </div>
+    <script>
+        if (window.location.protocol === 'file:') {
+            document.getElementById('file-protocol-warning').hidden = false;
+            const apiStatus = document.getElementById('api-status-text');
+            if (apiStatus) apiStatus.textContent = 'Abierto como archivo; ejecuta iniciar_servidores.bat';
+        }
+    </script>
+</body>
+</html>
