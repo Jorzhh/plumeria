@@ -42,7 +42,8 @@ Flight::before('start', function () {
         $requestHost = strtolower(rtrim(parse_url('http://' . ($_SERVER['HTTP_HOST'] ?? ''), PHP_URL_HOST) ?: '', '.'));
         $localHost = in_array($originHost, ['localhost', '127.0.0.1', '::1'], true);
         $validScheme = in_array($parts['scheme'] ?? '', ['http', 'https'], true);
-        $allowed = $validScheme && $originPort === 3006 && ($localHost || $originHost === $requestHost);
+        $allowedPort = in_array($originPort, [80, 443, 3006], true);
+        $allowed = $validScheme && $allowedPort && ($localHost || $originHost === $requestHost);
 
         if ($allowed) {
             header('Access-Control-Allow-Origin: ' . $origin);
